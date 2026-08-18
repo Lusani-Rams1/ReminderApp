@@ -10,7 +10,29 @@
     </head>
     <body>
         
-        <h1>CampusSnyc</h1>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+      <div class="particle"></div>
+ 
+      <div class="splash-container">
+        <div class="logo-wrap">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white"/>
+          </svg>
+        </div>
+ 
+      <div>
+          <div class="brand-name">Your App Name</div>
+          <div class="brand-tagline">Loading your experience…</div>
+      </div>
+    
+      <div class="loader-track">
+          <div class="loader-fill"></div>
+        </div>
+      </div>
+
+      <h1>CampusSnyc</h1>
         <a href="#" class="icon-link" title="Notifications" aria-label="Notifications">
             <i class="fas fa-user"></i>
         </a>
@@ -88,6 +110,13 @@
           <p>&copy; 2025 StudySync. All rights reserved. | Made for students</p>
         </div>
       </div>
+
+  <script>
+    // Example: redirect to your main app after the splash finishes.
+    // Replace '#' with your actual app URL, then uncomment.
+    setTimeout(() => { window.location.href = "dashboard.html"; }, 2500);
+  </script>
+
     </footer>
         <script src="" async defer></script>
     </body>
