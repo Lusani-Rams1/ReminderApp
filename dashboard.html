@@ -1,123 +1,135 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title></title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="CSS/dashboard.css">
-    </head>
-    <body>
-        
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
-      <div class="particle"></div>
- 
-      <div class="splash-container">
-        <div class="logo-wrap">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white"/>
-          </svg>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>CampusSnyc</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="CSS/dashboard.css">
+</head>
+<body>
+
+    <!-- SPLASH SCREEN (overlays everything, then fades out) -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+
+        <div class="splash-container">
+            <div class="logo-wrap">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="white"/>
+                </svg>
+            </div>
+            <div>
+                <div class="brand-name">Your App Name</div>
+                <div class="brand-tagline">Loading your experience…</div>
+            </div>
+            <div class="loader-track">
+                <div class="loader-fill"></div>
+            </div>
         </div>
- 
-      <div>
-          <div class="brand-name">Your App Name</div>
-          <div class="brand-tagline">Loading your experience…</div>
-      </div>
-    
-      <div class="loader-track">
-          <div class="loader-fill"></div>
-        </div>
-      </div>
-
-      <h1>CampusSnyc</h1>
-        <a href="#" class="icon-link" title="Notifications" aria-label="Notifications">
-            <i class="fas fa-user"></i>
-        </a>
-        <ul></ul>
-        <a href="#" class="icon-link" title="Profile" aria-label="Profile">
-            <i class="fas fa-user"></i>
-        </a>
-
-        <br>
-        <ul class="menu-bar">
-            <li><a href="dashboard.html">home</a></li>
-            <li><a href="#">tasks</a></li>
-            <li><a href="#">notes</a></li>
-            <li><a href="#">gpa calculator</a></li>
-            <li><a href="#">calendar</a></li>
-            <li><a href="#">settings</a></li>
-        </ul>
-
-    <div class="display-container">
-
-    <div class="display-header">
-        <h1> Dashboard</h1>
-    
     </div>
 
-    <div class="grid-container">
-        <div class="card" id="Today's-classes">Today's Class</div>
-        <div class="card" id="Upcoming-submissions">Upcoming submission</div>
-        <div class="card" id="Exam-countdown">Exam countdown</div>
-        <div class="card" id="Calender">Calender</div>
-    </div>
+    <!-- MAIN APP CONTENT -->
+    <div class="app-content" id="appContent">
+
+        <header class="top-bar">
+            <h1>CampusSnyc</h1>
+            <ul class="menu-bar">
+                <li><a href="dashboard.html">home</a></li>
+                <li><a href="#">tasks</a></li>
+                <li><a href="#">notes</a></li>
+                <li><a href="#">gpa calculator</a></li>
+                <li><a href="#">calendar</a></li>
+                <li><a href="#">settings</a></li>
+            </ul>
+            <div class="icon-group">
+                <a href="#" class="icon-link" title="Notifications" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                </a>
+                <a href="#" class="icon-link" title="Profile" aria-label="Profile">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+        </header>
+
+        <div class="display-container">
+            <div class="display-header">
+                <h1>Dashboard</h1>
+            </div>
+
+            <div class="grid-container">
+                <div class="card" id="todays-classes">Today's Class</div>
+                <div class="card" id="upcoming-submissions">Upcoming submission</div>
+                <div class="card" id="exam-countdown">Exam countdown</div>
+                <div class="card" id="calendar-card">Calender</div>
+            </div>
+        </div>
 
         <footer class="page-footer">
-      <div class="container">
-        <div class="footer-content">
-          <div class="footer-section">
-            <h4><i class="fas fa-graduation-cap"></i> StudySync</h4>
-            <p>Your personal study companion for academic success.</p>
-            <div class="social-links">
-              <a href="#"><i class="fab fa-facebook"></i></a>
-              <a href="#"><i class="fab fa-twitter"></i></a>
-              <a href="#"><i class="fab fa-instagram"></i></a>
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4><i class="fas fa-graduation-cap"></i> StudySync</h4>
+                        <p>Your personal study companion for academic success.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="dashboard.html">home</a></li>
+                            <li><a href="#">Schedule</a></li>
+                            <li><a href="#">Notes</a></li>
+                            <li><a href="#">Create</a></li>
+                            <li><a href="#">About</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Talk to us</h4>
+                        <ul>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                        <p><a href="tel:+27123456789">Tel: +27123456789</a></p>
+                        <p><a href="mailto:StudySncy@email.com">Email: StudySncy@email.com</a></p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 StudySync. All rights reserved. | Made for students</p>
+                </div>
             </div>
-          </div>
-          <div class="footer-section">
-            <h4>Quick Links</h4>
-            <ul>
-              <li><a href="dashboard.html">home</a></li>
-              <li><a href="#">Schedule</a></li>
-              <li><a href="#">Notes</a></li>
-              <li><a href="#">Create</a></li>
-              <li><a href="#">About</a></li>
-            </ul>
-          </div>
-          <div class="footer-section">
-            <h4>Support</h4>
-            <ul>
-              <li><a href="#">FAQ</a></li>
-              <li><a href="#">Help Center</a></li>
-              <li><a href="#">Privacy Policy</a></li>
-            </ul>
-          </div>
-          <div class="footer-section">
-            <h4>Talk to us</h4>
-            <ul>
-              <li><a href="#">Contact Us</a></li>
-              <li><a href="#">FAQ</a></li>
-              <br>
-            <p><a href="tel:+27123456789">Tel: +27123456789</a></p>
-            <p><a href="email:StudySncy@email.com">Email: StudySncy@email.com</a></p>
-            </ul>
-          </div>
-        </div>
-        <div class="footer-bottom">
-          <p>&copy; 2025 StudySync. All rights reserved. | Made for students</p>
-        </div>
-      </div>
+        </footer>
 
-  <script>
-    // Example: redirect to your main app after the splash finishes.
-    // Replace '#' with your actual app URL, then uncomment.
-    setTimeout(() => { window.location.href = "dashboard.html"; }, 2500);
-  </script>
+    </div>
 
-    </footer>
-        <script src="" async defer></script>
-    </body>
+    <script>
+        // Hide splash and reveal the app after loading finishes
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splashScreen');
+                const app = document.getElementById('appContent');
+                splash.classList.add('splash-hidden');
+                app.classList.add('app-visible');
+                // Remove splash from DOM after its fade-out transition ends
+                splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+            }, 1500); // adjust delay as needed
+        });
+    </script>
+
+</body>
 </html>
