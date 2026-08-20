@@ -28,23 +28,36 @@
                 </a>
             </div>
         </header>
-         <div class="gpa-table" id="gpaTable">
-            <div class="gpa-row gpa-row-header">
-                <div>Course</div>
-                <div>Marks</div>
-                <div>Grade</div>
-                <div>Credit</div>
-                <div></div>
-            </div>
 
+        <main class="gpa-calculator">
+        <h1>GPA Calculator</h1>
+        <form id="gpa-form">
+        <div class="form-group">
+            <label for="course">Enter your course code:</label>
+            <input type="text" id="course" name="course" placeholder="e.g. Math, Science, History" required>
         </div>
-
-        <button type="button" class="add-course-btn" id="addRowBtn">+ Add more course</button>
-
-        <div class="gpa-actions">
-            <button type="button" class="btn-calculate" id="calculateBtn">Calculate</button>
-            <button type="button" class="btn-clear" id="clearBtn">Clear</button>
+        <br>
+        <div class="form-group">
+            <label for="marks">Enter your marks:</label>
+            <input type="text" id="marks" name="marks" placeholder="e.g. 85, 90, 75" required>
         </div>
+        <br>
+        <div class="form-group">
+            <label for="grades">Enter your grades:</label>
+            <input type="text" id="grades" name="grades" placeholder="e.g. A, B+, C" required>
+        </div>
+        <br>
+        <div class="form-group">
+            <label for="credits">Enter your credits:</label>
+            <input type="text" id="credits" name="credits" placeholder="e.g. 3, 4, 2" required>
+        </div>
+        <br>
+        
+        </form>
+        <div class="gpa-result" id="gpaResult">Your GPA: <span id="gpaValue">0.00</span></div>
+        </main>
+        <button type="submit">Submit</button> 
+        <button type="reset">Clear</button>
 
         <footer class="page-footer">
             <div class="container">
