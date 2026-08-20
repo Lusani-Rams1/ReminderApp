@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>GPA Calculator</title>
-        <meta name="description" content="Calculate your GPA with our easy-to-use calculator">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="CSS/gpa.css">
-    </head>
-    <body>
-      <header class="top-bar">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>calender</title>
+    <link rel="stylesheet" href="css/calender.css">
+</head>
+<body>
+
+        <header class="top-bar">
             <h1>CampusSnyc</h1>
             <ul class="menu-bar">
                 <li><a href="dashboard.html">Home</a></li>
@@ -28,23 +27,26 @@
                 </a>
             </div>
         </header>
-         <div class="gpa-table" id="gpaTable">
-            <div class="gpa-row gpa-row-header">
-                <div>Course</div>
-                <div>Marks</div>
-                <div>Grade</div>
-                <div>Credit</div>
-                <div></div>
+
+
+        <!-- Shown before sign-in -->
+        <div class="signin-panel" id="signinPanel">
+            <p>Connect your Google Calendar to see your events here.</p>
+            <button id="signinBtn" class="btn-calculate">Sign in with Google</button>
+        </div>
+
+        <!-- Shown after sign-in -->
+        <div class="calendar-panel" id="calendarPanel" style="display: none;">
+            <div class="calendar-toolbar">
+                <span id="userEmail"></span>
+                <button id="signoutBtn" class="btn-clear">Sign out</button>
             </div>
-
+            <div class="events-list" id="eventsList">
+                <!-- events injected here -->
+            </div>
         </div>
+    </div>
 
-        <button type="button" class="add-course-btn" id="addRowBtn">+ Add more course</button>
-
-        <div class="gpa-actions">
-            <button type="button" class="btn-calculate" id="calculateBtn">Calculate</button>
-            <button type="button" class="btn-clear" id="clearBtn">Clear</button>
-        </div>
 
         <footer class="page-footer">
             <div class="container">
@@ -91,6 +93,8 @@
                 </div>
             </div>
         </footer>
-        <script src="js/g[a.js"></script>
-    </body>
+
+    </div>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    <script src="js/calendar.js"></script></body>
 </html>

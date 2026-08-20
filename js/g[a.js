@@ -1,16 +1,12 @@
 // JS/gpa.js
 
 const gradeScale = [
-    { min: 90, grade: 'A+', points: 4.0 },
-    { min: 80, grade: 'A',  points: 4.0 },
-    { min: 75, grade: 'A-', points: 3.7 },
-    { min: 70, grade: 'B+', points: 3.3 },
-    { min: 65, grade: 'B',  points: 3.0 },
-    { min: 60, grade: 'B-', points: 2.7 },
-    { min: 55, grade: 'C+', points: 2.3 },
-    { min: 50, grade: 'C',  points: 2.0 },
-    { min: 45, grade: 'D',  points: 1.0 },
-    { min: 0,  grade: 'F',  points: 0.0 }
+    { min: 75, grade: 'PD', points: 4.0 },
+    { min: 70, grade: 'P', points: 4.0 },
+    { min: 65, grade: 'F', points: 0.0 },
+    { min: 60, grade: 'FES', points: 0.0 },
+    { min: 55, grade: 'IC', points: 4.0 },
+    { min: 50, grade: 'EC', points: 4.0 }
 ];
 
 function marksToGrade(marks) {

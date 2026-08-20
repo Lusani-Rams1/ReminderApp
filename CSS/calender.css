@@ -1,3 +1,4 @@
+/* CSS/calendar.css */
 * {
     margin: 0;
     padding: 0;
@@ -16,7 +17,6 @@ p, h1, h2, h3, h4 {
     color: white;
 }
 
-/* ===== MAIN APP ===== */
 .app-content {
     opacity: 0;
     transition: opacity 0.6s ease;
@@ -106,17 +106,29 @@ p, h1, h2, h3, h4 {
     color: black;
 }
 
+.display-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    flex: 1;
+}
+
 .display-header {
     text-align: center;
     margin-bottom: 20px;
 }
 
-/* ===== FOOTER ===== */
 .page-footer {
     width: 100%;
     background: rgba(0, 0, 0, .3);
     padding: 30px 40px;
     margin-top: 40px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .footer-content {
@@ -169,111 +181,65 @@ p, h1, h2, h3, h4 {
         grid-column: 1;
         justify-self: center;
     }
-    .gpa-row {
-        grid-template-columns: 1fr;
-    }
-    .gpa-row-header {
-        display: none;
-    }
 }
 
-.gpa-table {
+.signin-panel {
+    max-width: 400px;
+    margin: 60px auto;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 40px 24px;
+    border-radius: 12px;
+}
+
+.signin-panel p {
+    margin-bottom: 20px;
+    color: white;
+}
+
+.calendar-panel {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.calendar-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.calendar-toolbar #userEmail {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.7);
+}
+
+.events-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    max-width: 700px;
-    margin: 20px auto;
+    gap: 12px;
 }
 
-.gpa-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr auto;
-    gap: 10px;
-    align-items: center;
-    background-color: #fff;
-    padding: 12px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-.gpa-row-header {
-    background: none;
-    box-shadow: none;
-    color: white;
-    font-weight: bold;
-    padding: 0 12px;
-}
-
-.gpa-row input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-.gpa-row .grade-display {
-    text-align: center;
-    font-weight: bold;
+.event-card {
+    background: #f0f0f0;
     color: #0a0a30;
-}
-
-.remove-row-btn {
-    background: none;
-    border: none;
-    color: #c0392b;
-    font-size: 1.2rem;
-    cursor: pointer;
-}
-
-.add-course-btn {
-    display: block;
-    margin: 0 auto 20px auto;
-    background: none;
-    border: 1px dashed rgba(255, 255, 255, 0.5);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.add-course-btn:hover {
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.form-actions {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.form-actions button {
-    padding: 10px 24px;
-    border-radius: 25px;
-    border: none;
-    font-weight: bold;
-    cursor: pointer;
-    margin: 0 6px;
-}
-
-.form-actions button[type="submit"] {
-    background: linear-gradient(135deg, #7f77ff 0%, #5346d6 100%);
-    color: white;
-}
-
-.form-actions button[type="reset"] {
-    background: rgba(255, 255, 255, 0.8);
-    color: #0a0a30;
-}
-
-.gpa-result {
-    text-align: center;
-    font-size: 1.4rem;
-    font-weight: bold;
-    color: white;
-    background: rgba(127, 119, 255, 0.2);
-    max-width: 280px;
-    margin: 0 auto 30px auto;
     padding: 16px;
-    border-radius: 12px;
-    display: none;
+    border-radius: 8px;
+}
+
+.event-card .event-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.event-card .event-time {
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.empty-state {
+    text-align: center;
+    color: rgba(255,255,255,0.6);
+    padding: 40px 0;
 }
