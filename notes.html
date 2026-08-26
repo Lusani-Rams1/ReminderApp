@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A simple, local-only notes editor: write, search, autosave, and export as .txt." />
+    <link rel="stylesheet" href="CSS/dashboard.css" />
+    <title>Notes</title>
+</head>
+<body>
+    <header class="top-bar">
+            <h1>CampusSnyc</h1>
+            <ul class="menu-bar">
+                <li><a href="dashboard.html">Home</a></li>
+                <li><a href="#">tasks</a></li>
+                <li><a href="#">notes</a></li>
+                <li><a href="gpa.html">gpa calculator</a></li>
+                <li><a href="calender.html">calendar</a></li>
+                <li><a href="#">settings</a></li>
+            </ul>
+            <div class="icon-group">
+                <a href="#" class="icon-link" title="Notifications" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                </a>
+                <a href="#" class="icon-link" title="Profile" aria-label="Profile">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+        </header>
+
+    <main class="container" role="application" aria-label="Notes app">
+        <header>
+            <h1>Notes</h1>
+            <div class="toolbar" role="toolbar" aria-label="Editor tools">
+                <button id="newBtn" type="button" title="New note">New</button>
+                <button id="saveBtn" type="button" title="Save to browser storage">Save</button>
+                <button id="exportBtn" type="button" title="Export as .txt">Export</button>
+
+                <label class="tool small" for="autosave" title="Autosave">
+                    <input id="autosave" type="checkbox" />
+                    Auto
+                </label>
+
+                <label class="visually-hidden" for="search">Find text in note</label>
+                <input id="search" type="search" placeholder="Search..." title="Find text" />
+
+                <label class="visually-hidden" for="filename">Export filename</label>
+                <input id="filename" type="text" placeholder="filename.txt" class="filename-input" title="Export filename" />
+            </div>
+        </header>
+
+        <div class="layout">
+            <section class="editor-pane">
+                <label class="visually-hidden" for="editor">Note contents</label>
+                <textarea id="editor" placeholder="Start typing your notes..."></textarea>
+                <footer>
+                    <div class="small meta">
+                        <span id="wc">Words: 0</span>
+                        <span id="chars" class="meta-item">Chars: 0</span>
+                        <span id="lastSaved" class="meta-item" aria-live="polite">Not saved</span>
+                    </div>
+                    <div class="small">Local only &middot; no server</div>
+                </footer>
+            </section>
+
+            <aside class="side">
+                <div class="card">
+                    <div class="small card-title">Quick actions</div>
+                    <button id="clearBtn" type="button" class="full-width">Clear</button>
+                    <label class="visually-hidden" for="importFile">Import a .txt file</label>
+                    <input id="importFile" type="file" accept=".txt" class="full-width" />
+                </div>
+                <div class="card card-preview">
+                    <div class="small card-title">Preview (plain)</div>
+                    <div id="preview" class="preview-box"></div>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="page-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4><i class="fas fa-graduation-cap"></i> StudySync</h4>
+                        <p>Your personal study companion for academic success.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="dashboard.html">Home</a></li>
+                            <li><a href="#">Schedule</a></li>
+                            <li><a href="notes.html">Notes</a></li>
+                            <li><a href="#">Create</a></li>
+                            <li><a href="#">About</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Talk to us</h4>
+                        <ul>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                        <p><a href="tel:+27123456789">Tel: +27123456789</a></p>
+                        <p><a href="mailto:StudySncy@email.com">Email: StudySncy@email.com</a></p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 StudySync. All rights reserved. | Made for students</p>
+                </div>
+            </div>
+        </footer>
+
+</body>
+</html>
