@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Settings | CampusSync</title>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        CampusSync
+    </div>
+
+    <ul class="nav-links">
+
+        <li>
+            <a href="Dashboard.html">
+                Home
+            </a>
+        </li>
+
+        <li>
+            <a href="Timetable.html">
+                Timetable
+            </a>
+        </li>
+
+        <li>
+            <a href="Tasks.html">
+                Tasks
+            </a>
+        </li>
+
+        <li>
+            <a href="Notes.html">
+                Notes
+            </a>
+        </li>
+
+        <li>
+            <a href="GPA.html">
+                GPA
+            </a>
+        </li>
+
+        <li>
+            <a href="Settings.html"
+               class="active">
+                Settings
+            </a>
+        </li>
+
+    </ul>
+
+    <div class="profile">
+        LR
+    </div>
+
+</nav>
+
+<!-- MAIN -->
+
+<main class="container">
+
+    <div class="page-title">
+
+        <h1>
+            Settings
+        </h1>
+
+        <p>
+            Manage your CampusSync preferences.
+        </p>
+
+    </div>
+
+    <!-- APPEARANCE -->
+
+    <div class="settings-card">
+
+        <div class="section-title">
+            Appearance
+        </div>
+
+        <div class="setting">
+
+            <div>
+
+                <div class="setting-name">
+                    Dark Mode
+                </div>
+
+                <div class="setting-description">
+                    Change the appearance of CampusSync.
+                </div>
+
+            </div>
+
+            <label class="switch">
+
+                  <input type="checkbox"
+                      id="darkMode"
+                      aria-label="Dark Mode">
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+    </div>
+
+    <!-- LANGUAGE -->
+
+    <div class="settings-card">
+
+        <div class="section-title">
+            Language
+        </div>
+
+
+        <div class="setting">
+
+            <div>
+
+                <div class="setting-name">
+                    Application Language
+                </div>
+
+                <div class="setting-description">
+                    Select your preferred language.
+                </div>
+
+            </div>
+
+            <select id="language" aria-label="Application Language">
+
+                <option value="english">
+                    English
+                </option>
+
+                <option value="zulu">
+                    isiZulu
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <!-- NOTIFICATIONS -->
+
+    <div class="settings-card">
+
+        <div class="section-title">
+            Notifications
+        </div>
+
+        <div class="setting">
+
+            <div>
+
+                <div class="setting-name">
+                    Assignment Alerts
+                </div>
+
+                <div class="setting-description">
+                    Receive reminders about upcoming assignments.
+                </div>
+
+            </div>
+
+            <label class="switch">
+
+                  <input type="checkbox"
+                      aria-label="Assignment Alerts"
+                      checked>
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+        <div class="setting">
+
+            <div>
+
+                <div class="setting-name">
+                    Class Reminders
+                </div>
+
+                <div class="setting-description">
+                    Receive reminders before your classes.
+                </div>
+
+            </div>
+
+
+            <label class="switch">
+
+                  <input type="checkbox"
+                      aria-label="Class Reminders"
+                      checked>
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+        <div class="setting">
+
+            <div>
+
+                <div class="setting-name">
+                    Announcements
+                </div>
+
+                <div class="setting-description">
+                    Receive important academic announcements.
+                </div>
+
+            </div>
+
+            <label class="switch">
+
+                  <input type="checkbox"
+                      aria-label="Announcements"
+                      checked>
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+    </div>
+
+    <!-- OFFLINE -->
+
+    <div class="settings-card">
+
+        <div class="section-title">
+            Offline & Sync
+        </div>
+
+        <div class="setting">
+
+            <div>
+
+                <div class="setting-name">
+                    Offline Mode
+                </div>
+
+                <div class="setting-description">
+                    Access saved information without an internet connection.
+                </div>
+
+            </div>
+
+            <label class="switch">
+
+                <input type="checkbox"
+                       id="offlineMode"
+                      aria-label="Offline Mode"
+                       checked>
+
+                <span class="slider"></span>
+
+            </label>
+
+        </div>
+
+        <div class="setting">
+
+            <div>
+
+                <div>
+
+                    <strong>
+                        Synchronisation
+                    </strong>
+
+                </div>
+
+                <div class="setting-description">
+                    Last synced: Today, 13:42
+                </div>
+
+            </div>
+
+            <button class="sync-btn"
+                    onclick="syncData()">
+
+                Sync Now
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- ABOUT -->
+
+    <div class="settings-card">
+
+        <div class="section-title">
+            About
+        </div>
+
+        <div class="setting">
+
+            <div>
+
+                <div class="setting-name">
+                    CampusSync
+                </div>
+
+                <div class="setting-description">
+                    Student academic management application.
+                </div>
+
+            </div>
+
+            <span class="version">
+                Version 1.0.0
+            </span>
+
+        </div>
+
+    </div>
+
+</main>
+
+<footer>
+
+    <strong>
+        CampusSync
+    </strong>
+
+    <p>
+        Helping students organise their academic life.
+    </p>
+
+    <p>
+        © 2026 CampusSync. All Rights Reserved.
+    </p>
+
+</footer>
+
+<script src="JS/settings.js"></script>
+</body>
+
+</html>

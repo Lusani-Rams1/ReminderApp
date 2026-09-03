@@ -1,0 +1,223 @@
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f5f7fb;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+
+        header {
+            background: #172554;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 50px;
+        }
+
+        .logo {
+            color: white;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        /* LOGIN AREA */
+
+        .login-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+        }
+
+        .login-card {
+            background: white;
+            width: 100%;
+            max-width: 430px;
+            padding: 40px;
+            border-radius: 14px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+        }
+
+        .login-card h1 {
+            text-align: center;
+            color: #172554;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        /* FORM */
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #334155;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        /* OPTIONS */
+
+        .login-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 13px;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .remember input {
+            width: auto;
+        }
+
+        .forgot {
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        /* LOGIN BUTTON */
+
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* DIVIDER */
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 25px 0;
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            background: #e2e8f0;
+            flex: 1;
+        }
+
+        /* GOOGLE */
+
+        .google-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #334155;
+        }
+
+        .google-btn:hover {
+            background: #f8fafc;
+        }
+
+        /* REGISTER */
+
+        .register-text {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .register-text a {
+            color: #2563eb;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        /* ERROR */
+
+        .error {
+            display: none;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 10px;
+            border-radius: 7px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            background: #172554;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            font-size: 13px;
+        }
+
+        footer p {
+            margin-top: 5px;
+            color: #cbd5e1;
+        }
+
+        /* MOBILE */
+
+        @media(max-width: 600px) {
+
+            header {
+                padding: 0 20px;
+            }
+
+            .login-card {
+                padding: 30px 25px;
+            }
+
+        }

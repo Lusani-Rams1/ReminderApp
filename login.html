@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | CampusSync</title>
+    <link rel="stylesheet" href="CSS/login.css">
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        CampusSync
+    </div>
+
+</header>
+
+<main class="login-container">
+
+    <div class="login-card">
+
+        <h1>Welcome Back</h1>
+
+        <p class="subtitle">
+            Sign in to continue to CampusSync
+        </p>
+
+        <div class="error" id="errorMessage">
+            Invalid email or password.
+        </div>
+
+        <form id="loginForm">
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email Address
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    placeholder="Enter your email"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    required
+                >
+
+            </div>
+
+            <div class="login-options">
+
+                <label class="remember">
+
+                    <input
+                        type="checkbox"
+                        id="remember"
+                    >
+
+                    Remember me
+
+                </label>
+
+                <a href="#" class="forgot">
+                    Forgot password?
+                </a>
+
+            </div>
+
+            <button
+                type="submit"
+                class="login-btn">
+
+                Login
+
+            </button>
+
+        </form>
+
+        <div class="divider">
+            OR
+        </div>
+
+        <button
+            class="google-btn"
+            onclick="googleLogin()">
+
+            Continue with Google
+
+        </button>
+
+        <div class="register-text">
+
+            Don't have an account?
+
+            <a href="Register.html">
+                Create an account
+            </a>
+
+        </div>
+
+    </div>
+
+</main>
+
+<footer>
+
+    <strong>CampusSync</strong>
+
+    <p>
+        © 2026 CampusSync. All Rights Reserved.
+    </p>
+
+</footer>
+
+<script src="JS/login.js"></script>
+
+</body>
+
+</html>

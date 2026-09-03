@@ -1,0 +1,295 @@
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fb;
+            color: #1e293b;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            height: 70px;
+            background: #172554;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+        }
+
+        .nav-links a:hover,
+        .nav-links .active {
+            color: #38bdf8;
+        }
+
+        .profile {
+            background: #2563eb;
+            padding: 9px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* MAIN */
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            font-size: 30px;
+            color: #172554;
+        }
+
+        .page-header p {
+            margin-top: 6px;
+            color: #64748b;
+        }
+
+        .add-btn {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 13px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .add-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* FILTERS */
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .filter-btn {
+            padding: 9px 18px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: #172554;
+            color: white;
+            border-color: #172554;
+        }
+
+        /* TASK CARDS */
+        .tasks {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .task-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+            border-left: 5px solid #2563eb;
+        }
+
+        .task-card.completed {
+            border-left-color: #16a34a;
+            opacity: 0.75;
+        }
+
+        .task-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+
+        .task-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .module {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .task-description {
+            margin: 15px 0;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .due-date {
+            font-size: 14px;
+            font-weight: bold;
+            color: #dc2626;
+        }
+
+        .completed .due-date {
+            color: #16a34a;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        .complete-btn,
+        .delete-btn {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .complete-btn {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .close {
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: none;
+        }
+
+        .save-btn {
+            width: 100%;
+            border: none;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border-radius: 7px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 60px;
+            background: #172554;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        footer p {
+            margin: 5px;
+            color: #cbd5e1;
+            font-size: 13px;
+        }
+
+        /* MOBILE */
+        @media (max-width: 750px) {
+
+            .navbar {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .tasks {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .add-btn {
+                width: 100%;
+            }
+        }

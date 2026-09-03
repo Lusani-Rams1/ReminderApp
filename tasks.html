@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tasks | CampusSync</title>
+
+    <link rel="stylesheet" href="CSS/tasks.css"
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+        <header class="top-bar">
+            <h1>CampusSnyc</h1>
+            <ul class="menu-bar">
+                <li><a href="dashboard.html">Home</a></li>
+                <li><a href="tasks.html">tasks</a></li>
+                <li><a href="notes.html">notes</a></li>
+                <li><a href="gpa.html">gpa calculator</a></li>
+                <li><a href="calender.html">calendar</a></li>
+                <li><a href="settings.html">settings</a></li>
+            </ul>
+            <div class="icon-group">
+                <a href="#" class="icon-link" title="Notifications" aria-label="Notifications">
+                    <i class="fas fa-bell"></i>
+                </a>
+                <a href="#" class="icon-link" title="Profile" aria-label="Profile">
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
+        </header>
+
+<!-- MAIN -->
+<main class="container">
+
+    <div class="page-header">
+
+        <div>
+            <h1>Assignments</h1>
+            <p>Keep track of your academic tasks and deadlines.</p>
+        </div>
+
+        <button class="add-btn" onclick="openModal()">
+            + Add Assignment
+        </button>
+
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+
+        <button class="filter-btn active"
+                onclick="filterTasks('all', this)">
+            All
+        </button>
+
+        <button class="filter-btn"
+                onclick="filterTasks('pending', this)">
+            Pending
+        </button>
+
+        <button class="filter-btn"
+                onclick="filterTasks('completed', this)">
+            Completed
+        </button>
+
+    </div>
+
+     <!-- TASKS -->
+    <div class="tasks" id="taskContainer">
+
+        <div class="task-card" data-status="pending">
+
+            <div class="task-top">
+
+                <div>
+                    <div class="task-title">
+                        Mobile App PoE
+                    </div>
+
+                    <div class="module">
+                        Mobile Application Development
+                    </div>
+                </div>
+
+            </div>
+
+            <p class="task-description">
+                Complete the research, planning and design documentation.
+            </p>
+
+            <div class="due-date">
+                Due: 20 August 2026
+            </div>
+
+            <div class="task-actions">
+
+                <button class="complete-btn"
+                        onclick="completeTask(this)">
+                    Mark Complete
+                </button>
+
+                <button class="delete-btn"
+                        onclick="deleteTask(this)">
+                    Delete
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="task-card" data-status="pending">
+
+            <div class="task-top">
+
+                <div>
+                    <div class="task-title">
+                        Database Project
+                    </div>
+
+                    <div class="module">
+                        Database Systems
+                    </div>
+                </div>
+
+            </div>
+
+            <p class="task-description">
+                Complete the database design and normalisation.
+            </p>
+
+            <div class="due-date">
+                Due: 25 August 2026
+            </div>
+
+            <div class="task-actions">
+
+                <button class="complete-btn"
+                        onclick="completeTask(this)">
+                    Mark Complete
+                </button>
+
+                <button class="delete-btn"
+                        onclick="deleteTask(this)">
+                    Delete
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+<!-- ADD ASSIGNMENT MODAL -->
+
+<div class="modal" id="assignmentModal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2>Add Assignment</h2>
+
+            <span class="close"
+                  onclick="closeModal()">
+                &times;
+            </span>
+
+        </div>
+
+        <form onsubmit="addTask(event)">
+
+            <div class="form-group">
+
+                <label>Assignment Name</label>
+
+                <input type="text"
+                       id="assignmentName"
+                       placeholder="Enter Assignment Name"
+                       required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Module</label>
+
+                <input type="text"
+                       id="assignmentModule"
+                       placeholder="Enter Module Name"
+                       required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Due Date</label>
+
+                <input type="date"
+                       id="assignmentDate"
+                       placeholder="Select Due Date"
+                       required>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Description</label>
+
+                <textarea id="assignmentDescription" placeholder="Enter Description"></textarea>
+
+            </div>
+
+            <button class="save-btn"
+                    type="submit">
+                Save Assignment
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+<footer>
+
+    <strong>CampusSync</strong>
+
+    <p>
+        Helping students organise their academic life.
+    </p>
+
+    <p>
+        © 2026 CampusSync. All Rights Reserved.
+    </p>
+
+</footer>
+
+<script src="JS/tasks.js"></script>
+
+</body>
+</html>

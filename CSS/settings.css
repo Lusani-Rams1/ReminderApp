@@ -1,0 +1,467 @@
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            background: #f5f7fb;
+            color: #1e293b;
+            transition: 0.3s;
+        }
+
+
+        /* NAVBAR */
+
+        .navbar {
+
+            height: 70px;
+
+            background: #172554;
+
+            color: white;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 40px;
+
+        }
+
+
+        .logo {
+
+            font-size: 24px;
+
+            font-weight: bold;
+
+        }
+
+
+        .nav-links {
+
+            display: flex;
+
+            gap: 25px;
+
+            list-style: none;
+
+        }
+
+
+        .nav-links a {
+
+            color: white;
+
+            text-decoration: none;
+
+            font-size: 15px;
+
+        }
+
+
+        .nav-links a:hover,
+        .nav-links .active {
+
+            color: #38bdf8;
+
+        }
+
+
+        .profile {
+
+            background: #2563eb;
+
+            padding: 9px 14px;
+
+            border-radius: 20px;
+
+        }
+
+
+        /* SETTINGS */
+
+        .container {
+
+            max-width: 850px;
+
+            margin: 45px auto;
+
+            padding: 0 20px;
+
+        }
+
+
+        .page-title {
+
+            margin-bottom: 30px;
+
+        }
+
+
+        .page-title h1 {
+
+            font-size: 30px;
+
+            color: #172554;
+
+        }
+
+
+        .page-title p {
+
+            margin-top: 7px;
+
+            color: #64748b;
+
+        }
+
+
+        .settings-card {
+
+            background: white;
+
+            border-radius: 12px;
+
+            margin-bottom: 20px;
+
+            box-shadow: 0 3px 12px rgba(0,0,0,0.06);
+
+            overflow: hidden;
+
+        }
+
+
+        .section-title {
+
+            padding: 18px 22px;
+
+            background: #f8fafc;
+
+            color: #172554;
+
+            font-weight: bold;
+
+            border-bottom: 1px solid #e2e8f0;
+
+        }
+
+
+        .setting {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding: 20px 22px;
+
+            border-bottom: 1px solid #e2e8f0;
+
+        }
+
+
+        .setting:last-child {
+
+            border-bottom: none;
+
+        }
+
+
+        .setting-name {
+
+            font-weight: bold;
+
+        }
+
+
+        .setting-description {
+
+            color: #64748b;
+
+            font-size: 13px;
+
+            margin-top: 5px;
+
+        }
+
+
+        /* TOGGLE */
+
+        .switch {
+
+            position: relative;
+
+            width: 48px;
+
+            height: 26px;
+
+        }
+
+
+        .switch input {
+
+            display: none;
+
+        }
+
+
+        .slider {
+
+            position: absolute;
+
+            cursor: pointer;
+
+            inset: 0;
+
+            background: #cbd5e1;
+
+            border-radius: 30px;
+
+            transition: 0.3s;
+
+        }
+
+
+        .slider:before {
+
+            content: "";
+
+            position: absolute;
+
+            height: 20px;
+
+            width: 20px;
+
+            left: 3px;
+
+            top: 3px;
+
+            background: white;
+
+            border-radius: 50%;
+
+            transition: 0.3s;
+
+        }
+
+
+        input:checked + .slider {
+
+            background: #2563eb;
+
+        }
+
+
+        input:checked + .slider:before {
+
+            transform: translateX(22px);
+
+        }
+
+
+        /* LANGUAGE */
+
+        select {
+
+            padding: 9px 35px 9px 12px;
+
+            border: 1px solid #cbd5e1;
+
+            border-radius: 7px;
+
+            background: white;
+
+        }
+
+
+        /* SYNC */
+
+        .sync-status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .online {
+
+            color: #16a34a;
+
+            font-weight: bold;
+
+        }
+
+
+        .sync-btn {
+
+            border: none;
+
+            background: #2563eb;
+
+            color: white;
+
+            padding: 10px 18px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+        }
+
+
+        .sync-btn:hover {
+
+            background: #1d4ed8;
+
+        }
+
+
+        /* ABOUT */
+
+        .version {
+
+            color: #64748b;
+
+            font-size: 14px;
+
+        }
+
+
+        /* FOOTER */
+
+        footer {
+
+            margin-top: 60px;
+
+            background: #172554;
+
+            color: white;
+
+            text-align: center;
+
+            padding: 25px;
+
+        }
+
+
+        footer p {
+
+            margin-top: 6px;
+
+            color: #cbd5e1;
+
+            font-size: 13px;
+
+        }
+
+
+        /* DARK MODE */
+
+        body.dark {
+
+            background: #0f172a;
+
+            color: #e2e8f0;
+
+        }
+
+
+        body.dark .settings-card {
+
+            background: #1e293b;
+
+        }
+
+
+        body.dark .section-title {
+
+            background: #172033;
+
+            color: white;
+
+            border-color: #334155;
+
+        }
+
+
+        body.dark .setting {
+
+            border-color: #334155;
+
+        }
+
+
+        body.dark .page-title h1 {
+
+            color: white;
+
+        }
+
+
+        body.dark .page-title p,
+
+        body.dark .setting-description {
+
+            color: #94a3b8;
+
+        }
+
+
+        body.dark select {
+
+            background: #0f172a;
+
+            color: white;
+
+            border-color: #475569;
+
+        }
+
+
+        /* MOBILE */
+
+        @media(max-width: 750px) {
+
+            .navbar {
+
+                padding: 0 20px;
+
+            }
+
+
+            .nav-links {
+
+                display: none;
+
+            }
+
+
+            .container {
+
+                margin-top: 30px;
+
+            }
+
+
+            .setting {
+
+                gap: 15px;
+
+            }
+
+        }
