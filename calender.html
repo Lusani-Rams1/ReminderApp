@@ -8,6 +8,12 @@
 </head>
 <body>
 
+    <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+    }
+  </script>
+
         <header class="top-bar">
             <h1>CampusSnyc</h1>
             <ul class="menu-bar">
@@ -95,5 +101,7 @@
 
     </div>
     <script src="https://accounts.google.com/gsi/client"></script>
-    <script src="js/calender.js"></script></body>
+    <script src="js/calender.js"></script>
+    <script src="js/theme.js"></script>
+</body>
 </html>

@@ -8,6 +8,13 @@
     <title>Notes</title>
 </head>
 <body>
+
+    <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+    }
+  </script>
+
     <header class="top-bar">
             <h1>CampusSnyc</h1>
             <ul class="menu-bar">
@@ -124,5 +131,6 @@
             </div>
         </footer>
 
+        <script src="js/theme.js"></script>
 </body>
 </html>

@@ -15,10 +15,16 @@
 
 <body>
 
+<script>
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+  }
+</script>
+
 <!-- NAVBAR -->
 
 <header class="top-bar">
-            <h1>CampusSnyc</h1>
+            <h1>CampusSync</h1>
             <ul class="menu-bar">
                 <li><a href="dashboard.html">Home</a></li>
                 <li><a href="tasks.html">tasks</a></li>
@@ -32,7 +38,7 @@
         LR
     </div>
 
-</nav>
+</header>
 
 <!-- MAIN -->
 
@@ -308,23 +314,54 @@
 
 </main>
 
-<footer>
-
-    <strong>
-        CampusSync
-    </strong>
-
-    <p>
-        Helping students organise their academic life.
-    </p>
-
-    <p>
-        © 2026 CampusSync. All Rights Reserved.
-    </p>
-
-</footer>
+<footer class="page-footer">
+            <div class="container">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4><i class="fas fa-graduation-cap"></i> StudySync</h4>
+                        <p>Your personal study companion for academic success.</p>
+                        <div class="social-links">
+                            <a href="#"><i class="fab fa-facebook"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-instagram"></i></a>
+                        </div>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Quick Links</h4>
+                        <ul>
+                            <li><a href="dashboard.html">Home</a></li>
+                            <li><a href="#">Schedule</a></li>
+                            <li><a href="notes.html">Notes</a></li>
+                            <li><a href="#">Create</a></li>
+                            <li><a href="#">About</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Support</h4>
+                        <ul>
+                            <li><a href="#">FAQ</a></li>
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Talk to us</h4>
+                        <ul>
+                            <li><a href="#">Contact Us</a></li>
+                            <li><a href="#">FAQ</a></li>
+                        </ul>
+                        <p><a href="tel:+27123456789">Tel: +27123456789</a></p>
+                        <p><a href="mailto:StudySncy@email.com">Email: StudySncy@email.com</a></p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 StudySync. All rights reserved. | Made for students</p>
+                </div>
+            </div>
+        </footer>
 
 <script src="JS/settings.js"></script>
+<script src="JS/theme.js"></script>
 </body>
 
 </html>

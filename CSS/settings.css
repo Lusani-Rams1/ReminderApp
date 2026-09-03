@@ -9,15 +9,24 @@ body {
     background: #f5f7fb;
     color: #1e293b;
     transition: 0.3s;
-    background: #1e293b;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.top-bar,
+footer {
+    flex-shrink: 0;
 }
 
 .top-bar {
-    width: 50%;
+    width: 100%;
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     padding: 20px 40px;
+    background: #172554;
+    color: white;
 }
 
 .top-bar h1 {
@@ -118,20 +127,28 @@ body {
 }
 
 .profile {
+    grid-column: 3;
+    justify-self: end;
+    align-self: center;
     background: #2563eb;
     padding: 9px 14px;
     border-radius: 20px;
 }
+ 
 
 /* SETTINGS */
 .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 40px 20px;
+    max-width: 850px;
+    width: 100%;
+    margin: 45px auto;
+    padding: 0 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .page-title {
-    text-align: center;
     margin-bottom: 30px;
 }
 
@@ -146,8 +163,7 @@ body {
 }
 
 .settings-card {
-    background: white;
-    width: 100%;
+    background: #f0f0f0;
     border-radius: 12px;
     margin-bottom: 20px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.06);
@@ -313,6 +329,56 @@ body.dark select {
     background: #0f172a;
     color: white;
     border-color: #475569;
+}
+
+page-footer {
+    width: 100%;
+    background: var(--footer-overlay);
+    padding: 30px 40px;
+    margin-top: 40px;
+    transition: background 0.4s ease;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: space-between;
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section a {
+    color: var(--footer-link);
+    text-decoration: none;
+}
+
+.footer-section a:hover {
+    text-decoration: underline;
+}
+
+.footer-section p {
+    margin-top: 8px;
+}
+
+.social-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.footer-bottom {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--footer-border);
 }
 
 /* MOBILE */

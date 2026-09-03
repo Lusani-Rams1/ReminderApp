@@ -10,6 +10,12 @@
 </head>
 <body>
 
+    <script>
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+    }
+  </script>
+  
     <!-- SPLASH SCREEN (overlays everything, then fades out) -->
     <div class="splash-screen" id="splashScreen">
         <div class="particle"></div>
