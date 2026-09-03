@@ -125,12 +125,13 @@ body {
 
 /* SETTINGS */
 .container {
-    max-width: 850px;
-    margin: 45px auto;
-    padding: 0 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px;
 }
 
 .page-title {
+    text-align: center;
     margin-bottom: 30px;
 }
 
@@ -146,6 +147,7 @@ body {
 
 .settings-card {
     background: white;
+    width: 100%;
     border-radius: 12px;
     margin-bottom: 20px;
     box-shadow: 0 3px 12px rgba(0,0,0,0.06);
