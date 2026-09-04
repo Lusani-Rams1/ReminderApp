@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Profile | CampusSync</title>
+    <meta name="description" content="Your CampusSync profile">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="CSS/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<script>
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+  }
+</script>
+
+<!-- NAVBAR -->
+<header class="top-bar">
+    <h1>CampusSync</h1>
+    <ul class="menu-bar">
+        <li><a href="dashboard.html">Home</a></li>
+        <li><a href="tasks.html">tasks</a></li>
+        <li><a href="notes.html">notes</a></li>
+        <li><a href="gpa.html">gpa calculator</a></li>
+        <li><a href="calender.html">calendar</a></li>
+        <li><a href="settings.html">settings</a></li>
+    </ul>
+    <div class="icon-group">
+        <a href="#" class="icon-link" id="darkModeToggle" title="Toggle Dark Mode" aria-label="Toggle Dark Mode">
+            <i class="fas fa-moon"></i>
+        </a>
+        <a href="#" class="icon-link" title="Notifications" aria-label="Notifications">
+            <i class="fas fa-bell"></i>
+        </a>
+        <a href="profile.html" class="icon-link active" title="Profile" aria-label="Profile">
+            <i class="fas fa-user"></i>
+        </a>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main class="profile-container">
+
+    <div class="profile-header">
+        <h1>Your Profile</h1>
+        <p>Manage how your info appears across CampusSync.</p>
+    </div>
+
+    <div class="profile-card">
+
+        <div class="profile-top">
+            <div class="avatar" id="avatarInitials">?</div>
+            <div class="name-block">
+                <h2 id="displayName">Student</h2>
+                <p id="displayCourse">Add your course and year below</p>
+            </div>
+        </div>
+
+        <form id="profileForm">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" placeholder="e.g. Lerato Radebe">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" placeholder="e.g. lerato@campus.ac.za">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="course">Course</label>
+                    <input type="text" id="course" placeholder="e.g. BSc Computer Science">
+                </div>
+
+                <div class="form-group">
+                    <label for="year">Year of Study</label>
+                    <input type="text" id="year" placeholder="e.g. 2nd Year">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="bio">About</label>
+                <textarea id="bio" rows="3" placeholder="A short line about you"></textarea>
+            </div>
+
+            <div class="profile-actions">
+                <button type="button" class="btn-reset" id="resetProfileBtn">Reset</button>
+                <button type="submit" class="btn-save">Save Changes</button>
+            </div>
+
+            <div class="save-confirm" id="saveConfirm">Profile saved ✓</div>
+
+        </form>
+
+    </div>
+
+</main>
+
+<footer class="page-footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-graduation-cap"></i> CampusSync</h4>
+                <p>Your personal study companion for academic success.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="dashboard.html">Home</a></li>
+                    <li><a href="tasks.html">Tasks</a></li>
+                    <li><a href="notes.html">Notes</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="Help_Center.html">Help Center</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Talk to us</h4>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CampusSync. All rights reserved. | Made for students</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    const STORAGE_KEY = 'campusSyncProfile';
+
+    const fullNameInput = document.getElementById('fullName');
+    const emailInput = document.getElementById('email');
+    const courseInput = document.getElementById('course');
+    const yearInput = document.getElementById('year');
+    const bioInput = document.getElementById('bio');
+
+    const avatarInitials = document.getElementById('avatarInitials');
+    const displayName = document.getElementById('displayName');
+    const displayCourse = document.getElementById('displayCourse');
+    const saveConfirm = document.getElementById('saveConfirm');
+
+    function getInitials(name) {
+        const parts = name.trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 0) return '?';
+        if (parts.length === 1) return parts[0][0].toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+
+    function updatePreview() {
+        const name = fullNameInput.value.trim();
+        const course = courseInput.value.trim();
+        const year = yearInput.value.trim();
+
+        avatarInitials.textContent = getInitials(name || 'Student');
+        displayName.textContent = name || 'Student';
+
+        if (course && year) {
+            displayCourse.textContent = course + ' · ' + year;
+        } else if (course) {
+            displayCourse.textContent = course;
+        } else {
+            displayCourse.textContent = 'Add your course and year below';
+        }
+    }
+
+    function loadProfile() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+
+        try {
+            const data = JSON.parse(saved);
+            fullNameInput.value = data.name || '';
+            emailInput.value = data.email || '';
+            courseInput.value = data.course || '';
+            yearInput.value = data.year || '';
+            bioInput.value = data.bio || '';
+        } catch (e) {
+            // ignore malformed saved data
+        }
+    }
+
+    document.getElementById('profileForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const data = {
+            name: fullNameInput.value.trim(),
+            email: emailInput.value.trim(),
+            course: courseInput.value.trim(),
+            year: yearInput.value.trim(),
+            bio: bioInput.value.trim()
+        };
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        updatePreview();
+
+        saveConfirm.style.display = 'block';
+        setTimeout(() => { saveConfirm.style.display = 'none'; }, 2000);
+    });
+
+    document.getElementById('resetProfileBtn').addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEY);
+        document.getElementById('profileForm').reset();
+        updatePreview();
+    });
+
+    [fullNameInput, courseInput, yearInput].forEach(input => {
+        input.addEventListener('input', updatePreview);
+    });
+
+    loadProfile();
+    updatePreview();
+</script>
+
+<script src="js/theme.js"></script>
+
+</body>
+</html>
