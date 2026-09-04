@@ -30,6 +30,24 @@ body.dark {
     --footer-border: rgba(255, 255, 255, 0.1);
 }
 
+.icon-group {
+    grid-column: 3;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.icon-link {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    text-decoration: none;
+}
+
+.icon-link.active {
+    color: #7f77ff;
+}
+
 p, h1, h2, h3, h4 {
     color: var(--text-primary);
 }
