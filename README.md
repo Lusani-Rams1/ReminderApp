@@ -21,7 +21,7 @@ ReminderApp is a simple academic productivity web app for students. It helps you
 
 ## Project Structure
 
-- `dashboard.html` — main landing dashboard
+- `dashboard.html` — main dashboard
 - `tasks.html` — assignments page
 - `notes.html` — notes editor
 - `gpa.html` — GPA calculator
