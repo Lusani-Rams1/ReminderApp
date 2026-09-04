@@ -306,6 +306,44 @@ p, h1, h2, h3, h4 {
     color: var(--card-text);
 }
 
+.gpa-actions {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.gpa-actions button {
+    padding: 10px 24px;
+    border-radius: 25px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 0 6px;
+    transition: 0.2s ease;
+}
+
+.btn-calculate {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+    color: white;
+}
+
+.btn-calculate:hover {
+    filter: brightness(1.08);
+}
+
+.btn-clear {
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--card-text);
+}
+
+body.dark .btn-clear {
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text);
+}
+
+.btn-clear:hover {
+    filter: brightness(0.96);
+}
+
 .gpa-result {
     text-align: center;
     font-size: 1.4rem;
