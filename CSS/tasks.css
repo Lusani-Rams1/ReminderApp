@@ -6,23 +6,62 @@
 }
 
 body {
-    background: #f5f7fb;
-    color: #1e293b;
+    /* Light mode (default) */
+    --text-primary: #1e293b;
+    --page-bg: #f5f7fb;
+    --card-bg: #ffffff;
+    --card-text: #1e293b;
+    --muted: #64748b;
+    --border: #cbd5e1;
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    --footer-bg: #172554;
+
+    background: var(--page-bg);
+    color: var(--text-primary);
+    transition: background 0.4s ease, color 0.4s ease;
+}
+
+body.dark {
+    --text-primary: #e6eef8;
+    --page-bg: #14162e;
+    --card-bg: #1c1f3f;
+    --card-text: #e6eef8;
+    --muted: #b8c0d8;
+    --border: rgba(255, 255, 255, 0.15);
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    --footer-bg: #0a0b1a;
 }
 
 /* =========================
    NAVBAR
 ========================= */
 
-.navbar {
-    min-height: 70px;
-    background: #172554;
-    color: white;
+.top-bar {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 20px 40px;
+}
+
+.top-bar h1 {
+    grid-column: 1;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.icon-group {
+    grid-column: 3;
+    justify-self: end;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0 40px;
-    gap: 20px;
+    gap: 16px;
+}
+
+.icon-link {
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    text-decoration: none;
 }
 
 .logo {
@@ -34,6 +73,8 @@ body {
 /* MENU BAR */
 
 .menu-bar {
+    grid-column: 2;
+    justify-self: center;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -123,12 +164,12 @@ body {
 
 .page-header h1 {
     font-size: 30px;
-    color: #172554;
+    color: var(--text-primary);
 }
 
 .page-header p {
     margin-top: 6px;
-    color: #64748b;
+    color: var(--muted);
 }
 
 
@@ -166,8 +207,9 @@ body {
 
 .filter-btn {
     padding: 9px 18px;
-    border: 1px solid #cbd5e1;
-    background: white;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-primary);
     border-radius: 20px;
     cursor: pointer;
     transition: 0.2s ease;
@@ -196,12 +238,13 @@ body {
 }
 
 .task-card {
-    background: white;
+    background: var(--card-bg);
+    color: var(--card-text);
     padding: 22px;
     border-radius: 12px;
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
     border-left: 5px solid #2563eb;
-    transition: 0.2s ease;
+    transition: 0.2s ease, background 0.4s ease, color 0.4s ease;
 }
 
 .task-card:hover {
@@ -233,7 +276,7 @@ body {
 }
 
 .module {
-    color: #64748b;
+    color: var(--muted);
     font-size: 14px;
 }
 
@@ -244,7 +287,7 @@ body {
 
 .task-description {
     margin: 15px 0;
-    color: #475569;
+    color: var(--muted);
     line-height: 1.5;
 }
 
@@ -311,7 +354,7 @@ body {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--modal-overlay);
     justify-content: center;
     align-items: center;
     padding: 20px;
@@ -319,12 +362,14 @@ body {
 }
 
 .modal-content {
-    background: white;
+    background: var(--card-bg);
+    color: var(--card-text);
     width: 100%;
     max-width: 500px;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    transition: background 0.4s ease, color 0.4s ease;
 }
 
 .modal-header {
@@ -366,7 +411,9 @@ body {
 .form-group textarea {
     width: 100%;
     padding: 11px;
-    border: 1px solid #cbd5e1;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--card-text);
     border-radius: 7px;
     outline: none;
     font-size: 14px;
@@ -461,13 +508,15 @@ page-footer {
     border-top: 1px solid var(--footer-border);
 }
 
+
+
 /* =========================
    TABLET
 ========================= */
 
 @media (max-width: 900px) {
 
-    .navbar {
+    .top-bar {
         padding: 0 25px;
     }
 
@@ -489,7 +538,7 @@ page-footer {
 
 @media (max-width: 750px) {
 
-    .navbar {
+    .top-bar {
         min-height: 70px;
         padding: 15px 20px;
         flex-wrap: wrap;
@@ -497,10 +546,6 @@ page-footer {
 
     .logo {
         font-size: 20px;
-    }
-
-    .profile {
-        margin-left: auto;
     }
 
     .menu-bar {
@@ -576,17 +621,12 @@ page-footer {
 
 @media (max-width: 450px) {
 
-    .navbar {
+    .top-bar {
         padding: 12px 15px;
     }
 
     .logo {
         font-size: 18px;
-    }
-
-    .profile {
-        font-size: 12px;
-        padding: 8px 11px;
     }
 
     .menu-bar li {

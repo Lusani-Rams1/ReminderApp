@@ -251,8 +251,6 @@ textarea:focus {
     color:var(--muted);
 }
 
-
-
 .page-footer {
     width: 100%;
     background: var(--footer-overlay);
@@ -302,7 +300,6 @@ textarea:focus {
     padding-top: 20px;
     border-top: 1px solid var(--footer-border);
 }
-
 
 .visually-hidden {
     position:absolute;
