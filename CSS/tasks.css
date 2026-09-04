@@ -411,20 +411,55 @@ body {
    FOOTER
 ========================= */
 
-footer {
-    margin-top: 60px;
-    background: #172554;
-    color: white;
+page-footer {
+    width: 100%;
+    background: var(--footer-overlay);
+    padding: 30px 40px;
+    margin-top: 40px;
+    transition: background 0.4s ease;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: space-between;
+}
+
+.footer-section ul {
+    list-style: none;
+}
+
+.footer-section a {
+    color: var(--footer-link);
+    text-decoration: none;
+}
+
+.footer-section a:hover {
+    text-decoration: underline;
+}
+
+.footer-section p {
+    margin-top: 8px;
+}
+
+.social-links {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.footer-bottom {
     text-align: center;
-    padding: 25px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--footer-border);
 }
-
-footer p {
-    margin: 5px;
-    color: #cbd5e1;
-    font-size: 13px;
-}
-
 
 /* =========================
    TABLET
