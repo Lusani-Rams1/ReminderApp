@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Notifications | CampusSync</title>
+    <meta name="description" content="Your CampusSync notifications">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="CSS/notifications.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+<script>
+  if (localStorage.getItem('theme') === 'dark') {
+    document.body.classList.add('dark');
+  }
+</script>
+
+<!-- NAVBAR -->
+<header class="top-bar">
+    <h1>CampusSync</h1>
+    <ul class="menu-bar">
+        <li><a href="dashboard.html">Home</a></li>
+        <li><a href="tasks.html">tasks</a></li>
+        <li><a href="notes.html">notes</a></li>
+        <li><a href="gpa.html">gpa calculator</a></li>
+        <li><a href="calender.html">calendar</a></li>
+        <li><a href="settings.html">settings</a></li>
+    </ul>
+    <div class="icon-group">
+        <a href="notifications.html" class="icon-link active" title="Notifications" aria-label="Notifications">
+            <i class="fas fa-bell"></i>
+        </a>
+        <a href="profile.html" class="icon-link" title="Profile" aria-label="Profile">
+            <i class="fas fa-user"></i>
+        </a>
+    </div>
+</header>
+
+<!-- MAIN -->
+<main class="notif-container">
+
+    <div class="notif-header">
+        <div>
+            <h1>Notifications</h1>
+            <p>Stay on top of deadlines, exams and updates.</p>
+        </div>
+
+        <div class="notif-actions">
+            <button type="button" class="btn-outline" id="markAllBtn">Mark all as read</button>
+            <button type="button" class="btn-outline" id="clearAllBtn">Clear all</button>
+        </div>
+    </div>
+
+    <div class="notif-filters">
+        <button type="button" class="notif-filter-btn active" data-filter="all">All</button>
+        <button type="button" class="notif-filter-btn" data-filter="unread">Unread</button>
+        <button type="button" class="notif-filter-btn" data-filter="task">Tasks</button>
+        <button type="button" class="notif-filter-btn" data-filter="exam">Exams</button>
+        <button type="button" class="notif-filter-btn" data-filter="note">Notes</button>
+        <button type="button" class="notif-filter-btn" data-filter="system">System</button>
+    </div>
+
+    <div class="notif-list" id="notifList"></div>
+
+    <div class="notif-empty" id="notifEmpty">
+        <i class="fas fa-bell-slash"></i>
+        <p>No notifications here.</p>
+    </div>
+
+</main>
+
+<footer class="page-footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4><i class="fas fa-graduation-cap"></i> CampusSync</h4>
+                <p>Your personal study companion for academic success.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="dashboard.html">Home</a></li>
+                    <li><a href="tasks.html">Tasks</a></li>
+                    <li><a href="notes.html">Notes</a></li>
+                    <li><a href="about.html">About</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="faq.html">FAQ</a></li>
+                    <li><a href="Help_Center.html">Help Center</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Talk to us</h4>
+                <ul>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 CampusSync. All rights reserved. | Made for students</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    const STORAGE_KEY = 'campusSyncNotifications';
+
+    const iconByType = {
+        task: 'fa-clipboard-list',
+        exam: 'fa-graduation-cap',
+        note: 'fa-note-sticky',
+        system: 'fa-circle-info'
+    };
+
+    const defaultNotifications = [
+        {
+            id: 'n1',
+            type: 'exam',
+            title: 'Exam countdown',
+            message: 'Database Systems exam is in 5 days. Time to start revising.',
+            time: '2h ago',
+            read: false
+        },
+        {
+            id: 'n2',
+            type: 'task',
+            title: 'Assignment due soon',
+            message: '"Mobile App PoE" is due on 20 August 2026.',
+            time: '5h ago',
+            read: false
+        },
+        {
+            id: 'n3',
+            type: 'task',
+            title: 'Assignment due soon',
+            message: '"Database Project" is due on 25 August 2026.',
+            time: '1d ago',
+            read: true
+        },
+        {
+            id: 'n4',
+            type: 'note',
+            title: 'Note reminder',
+            message: 'You have an unfinished note in "Database Systems". Pick up where you left off.',
+            time: '2d ago',
+            read: true
+        },
+        {
+            id: 'n5',
+            type: 'system',
+            title: 'Welcome to CampusSync',
+            message: 'Set up your profile and add your first task to get started.',
+            time: '3d ago',
+            read: true
+        }
+    ];
+
+    let notifications = [];
+    let activeFilter = 'all';
+
+    function loadNotifications() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+            try {
+                notifications = JSON.parse(saved);
+                return;
+            } catch (e) {
+                // fall through to defaults on malformed data
+            }
+        }
+        notifications = defaultNotifications;
+        saveNotifications();
+    }
+
+    function saveNotifications() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
+    }
+
+    function render() {
+        const list = document.getElementById('notifList');
+        const empty = document.getElementById('notifEmpty');
+
+        const visible = notifications.filter(n => {
+            if (activeFilter === 'all') return true;
+            if (activeFilter === 'unread') return !n.read;
+            return n.type === activeFilter;
+        });
+
+        list.innerHTML = '';
+
+        if (visible.length === 0) {
+            empty.style.display = 'block';
+        } else {
+            empty.style.display = 'none';
+        }
+
+        visible.forEach(n => {
+            const card = document.createElement('div');
+            card.className = 'notif-card' + (n.read ? '' : ' unread');
+            card.dataset.id = n.id;
+
+            card.innerHTML = `
+                <div class="notif-icon type-${n.type}">
+                    <i class="fas ${iconByType[n.type] || 'fa-bell'}"></i>
+                </div>
+                <div class="notif-body">
+                    <div class="notif-top-row">
+                        <div class="notif-title">${n.title}</div>
+                        <div class="notif-time">${n.time}</div>
+                    </div>
+                    <div class="notif-message">${n.message}</div>
+                </div>
+                ${!n.read ? '<div class="notif-dot" title="Unread"></div>' : ''}
+                <button type="button" class="notif-remove" title="Dismiss" aria-label="Dismiss">&times;</button>
+            `;
+
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.notif-remove')) return;
+                n.read = true;
+                saveNotifications();
+                render();
+            });
+
+            card.querySelector('.notif-remove').addEventListener('click', () => {
+                notifications = notifications.filter(item => item.id !== n.id);
+                saveNotifications();
+                render();
+            });
+
+            list.appendChild(card);
+        });
+    }
+
+    document.getElementById('markAllBtn').addEventListener('click', () => {
+        notifications.forEach(n => { n.read = true; });
+        saveNotifications();
+        render();
+    });
+
+    document.getElementById('clearAllBtn').addEventListener('click', () => {
+        notifications = [];
+        saveNotifications();
+        render();
+    });
+
+    document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.notif-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeFilter = btn.dataset.filter;
+            render();
+        });
+    });
+
+    loadNotifications();
+    render();
+</script>
+
+<script src="js/theme.js"></script>
+
+</body>
+</html>
