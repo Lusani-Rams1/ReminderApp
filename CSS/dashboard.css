@@ -5,7 +5,8 @@
 }
 
 body {
-    /* Light mode (default) */
+    /* Light mode (default) */ 
+    background: radial-gradient(circle at 50% 40%, var(--bg-light) 0%, var(--bg) 60%, var(--bg-deep) 100%);
     --text-primary: #1e293b;
     --particle-color: rgba(15, 23, 42, 0.04);
     --footer-overlay: rgba(15, 23, 42, 0.05);
@@ -21,16 +22,22 @@ body {
     transition: background 0.4s ease, color 0.4s ease;
 }
 
-body.dark {
-    --bg-gradient: radial-gradient(circle at 50% 40%, #2b2f77 0%, #14162e 60%, #0a0b1a 100%);
-    --text-primary: #ffffff;
-    --particle-color: rgba(255, 255, 255, 0.06);
-    --footer-overlay: rgba(0, 0, 0, 0.3);
-    --footer-link: #b8b8e0;
-    --footer-border: rgba(255, 255, 255, 0.1);
-    --card-bg: #1c1f3f;
-    --card-text: #ffffff;
+body.dark{
+    --bg-light:#2b2f77;
+    --bg:#14162e;
+    --bg-deep:#0a0b1a;
+    --text:#e6eef8;
+    --muted:rgba(255,255,255,.55);
+    --card-bg:#ffffff;
+    --card-text:#0a0a30;
+    --footer-overlay:rgba(0,0,0,.3);
+    --footer-link:#b8b8e0;
+    --footer-border:rgba(255,255,255,.1);
+    --input-border:#ccc;
+    --dashed-border:rgba(255,255,255,.5);
+    --result-bg:rgba(127,119,255,.2);
 }
+
 
 .icon-group {
     grid-column: 3;
