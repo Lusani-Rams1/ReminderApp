@@ -43,7 +43,7 @@ document
                 );
 
                 window.location.href =
-                    "Dashboard.html";
+                    "dashboard.html";
 
             } else {
 
