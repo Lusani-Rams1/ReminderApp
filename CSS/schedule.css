@@ -67,6 +67,26 @@
             color: #2563eb;
         }
 
+        .user-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #172554;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .user-avatar {
+            display: inline-grid;
+            place-items: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 12px;
+        }
+
         .nav-buttons {
             display: flex;
             gap: 10px;
@@ -87,6 +107,12 @@
         .btn-outline {
             border: 1px solid #2563eb;
             color: #2563eb;
+        }
+
+        .logout-btn {
+            font: inherit;
+            cursor: pointer;
+            background: white;
         }
 
         .page-header {
@@ -190,5 +216,14 @@
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 15px;
+            }
+
+            .nav-container {
+                flex-wrap: wrap;
+                gap: 14px;
+            }
+
+            .nav-buttons {
+                margin-left: auto;
             }
         }
