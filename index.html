@@ -13,6 +13,12 @@
 
 <body>
 
+        <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
+        }
+    </script>
+
 <!--NAVIGATION-->
 <header class="navbar">
     <div class="nav-container">
@@ -660,6 +666,8 @@
     </div>
 
 </footer>
+
+<script src="js/theme.js"></script>
 
 </body>
 </html>
