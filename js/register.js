@@ -1,105 +1,68 @@
-    document
-        .getElementById("registerForm")
-        .addEventListener("submit", function(event) {
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('registerForm');
+  const errorMessage = document.getElementById('errorMessage');
+  const successMessage = document.getElementById('successMessage');
 
-            event.preventDefault();
+  errorMessage.style.display = 'none';
+  successMessage.style.display = 'none';
 
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMessage.style.display = 'none';
+    successMessage.style.display = 'none';
 
-            const fullName =
-                document.getElementById("fullName").value;
+    const fullName = document.getElementById('fullName').value.trim();
+    const studentNumber = document.getElementById('studentNumber').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const submitBtn = form.querySelector('.register-btn');
 
-            const studentNumber =
-                document.getElementById("studentNumber").value;
+    if (password !== confirmPassword) {
+      errorMessage.textContent = 'Passwords do not match.';
+      errorMessage.style.display = 'block';
+      return;
+    }
+    if (password.length < 8) {
+      errorMessage.textContent = 'Password must be at least 8 characters.';
+      errorMessage.style.display = 'block';
+      return;
+    }
 
-            const email =
-                document.getElementById("email").value;
+    submitBtn.disabled = true;
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = 'Creating account...';
 
-            const password =
-                document.getElementById("password").value;
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, studentNumber, email, password }),
+      });
 
-            const confirmPassword =
-                document.getElementById("confirmPassword").value;
+      const data = await res.json();
 
+      if (!res.ok) {
+        errorMessage.textContent = data.message || 'Something went wrong.';
+        errorMessage.style.display = 'block';
+        return;
+      }
 
-            const error =
-                document.getElementById("errorMessage");
+      // Save session immediately so they're logged in after registering
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
 
-
-            const success =
-                document.getElementById("successMessage");
-
-
-            error.style.display = "none";
-
-
-            if (password !== confirmPassword) {
-
-                error.textContent =
-                    "Passwords do not match.";
-
-                error.style.display = "block";
-
-                return;
-
-            }
-
-
-            let users =
-                JSON.parse(
-                    localStorage.getItem("campusSyncUsers")
-                ) || [];
-
-
-            const existingUser =
-                users.find(
-                    user => user.email === email
-                );
-
-
-            if (existingUser) {
-
-                error.textContent =
-                    "An account with this email already exists.";
-
-                error.style.display = "block";
-
-                return;
-
-            }
-
-
-            const newUser = {
-
-                id: Date.now(),
-
-                fullName: fullName,
-
-                studentNumber: studentNumber,
-
-                email: email,
-
-                password: password
-
-            };
-
-
-            users.push(newUser);
-
-
-            localStorage.setItem(
-                "campusSyncUsers",
-                JSON.stringify(users)
-            );
-
-
-            success.style.display = "block";
-
-
-            setTimeout(function() {
-
-                window.location.href =
-                    "Login.html";
-
-            }, 1500);
-
-        });
+      successMessage.style.display = 'block';
+      setTimeout(() => {
+        window.location.href = 'dashboard.html';
+      }, 1200);
+    } catch (err) {
+      console.error(err);
+      errorMessage.textContent = 'Unable to reach the server. Please try again.';
+      errorMessage.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  });
+});
