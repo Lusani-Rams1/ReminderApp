@@ -10,23 +10,39 @@
 
 <body>
 
+        <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
+        }
+    </script>
+
 <header class="navbar">
 
     <div class="nav-container">
 
         <a href="dashboard.html" class="logo">
-            <div class="logo-icon">C</div>
             CampusSync
         </a>
 
-        <a href="dashboard.html" class="back">
-            ← Back to Home
-        </a>
+            <ul class="menu-bar">
+                <li><a href="dashboard.html">Home</a></li>
+                <li><a href="tasks.html">tasks</a></li>
+                <li><a href="notes.html">notes</a></li>
+                <li><a href="gpa.html">gpa calculator</a></li>
+                <li><a href="calendar.html">calendar</a></li>
+                <li><a href="settings.html">settings</a></li>
+            </ul>
+
+        <div class="nav-buttons" data-auth-actions>
+            <a href="login.html" class="btn btn-outline">Login</a>
+            <a href="register.html" class="btn btn-primary">Get Started</a>
+        </div>
 
     </div>
 
 </header>
 
+<br><br>
 <section class="header">
 
     <h1>Help Center</h1>
@@ -52,7 +68,7 @@
                 managing your account.
             </p>
 
-            <a href="FAQ.html">
+            <a href="faq.html">
                 View account FAQs →
             </a>
 
@@ -69,7 +85,7 @@
                 upcoming deadlines.
             </p>
 
-            <a href="FAQ.html">
+            <a href="faq.html">
                 Learn more →
             </a>
 
@@ -86,7 +102,7 @@
                 academic schedule organised.
             </p>
 
-            <a href="Schedule.html">
+            <a href="schedule.html">
                 View schedule →
             </a>
 
@@ -103,7 +119,7 @@
                 work.
             </p>
 
-            <a href="FAQ.html">
+            <a href="faq.html">
                 Learn more →
             </a>
 
@@ -120,7 +136,7 @@
             contact the CampusSync support team.
         </p>
 
-        <a href="Contact.html" class="btn">
+        <a href="contact.html" class="btn">
             Contact Us
         </a>
 
@@ -154,7 +170,7 @@
                         <h4>Support</h4>
                         <ul>
                             <li><a href="faq.html">FAQ</a></li>
-                            <li><a href="help center.html">Help Center</a></li>
+                            <li><a href="Help_Center.html">Help Center</a></li>
                             <li><a href="privacy.html">Privacy Policy</a></li>
                         </ul>
                     </div>
@@ -174,5 +190,7 @@
             </div>
         </footer>
 
+<script src="js/auth.js"></script>
+<script src="js/theme.js"></script>
 </body>
 </html>

@@ -13,11 +13,17 @@
 
 <body>
 
+        <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark');
+        }
+    </script>
+
 <!--NAVIGATION-->
 <header class="navbar">
     <div class="nav-container">
 
-        <a href="dashboard.html" class="logo">
+        <a href="login.html" class="logo">
             <div class="logo-icon">C</div>
             CampusSync
         </a>
@@ -257,7 +263,7 @@
         </h2>
 
         <p>
-            CampusSync gives students an at-a-glance view of their
+            CampusSync gives students an at a glance view of their
             academic responsibilities, reminders and progress.
             From high-priority tasks to upcoming deadlines,
             everything is designed to help you stay on track.
@@ -660,6 +666,8 @@
     </div>
 
 </footer>
+
+<script src="js/theme.js"></script>
 
 </body>
 </html>
