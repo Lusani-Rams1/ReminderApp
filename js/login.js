@@ -36,17 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
 
-                window.location.href =
-                    "Dashboard.html";
-
-            } else {
-
-                error.style.display = "block";
-
-            }
-
-        });
-
+      window.location.href = 'dashboard.html';
+    } catch (err) {
+      console.error(err);
+      errorMessage.textContent = 'Unable to reach the server. Please try again.';
+      errorMessage.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  });
+});
 
 function googleLogin() {
   alert('Google login is not set up yet.');
