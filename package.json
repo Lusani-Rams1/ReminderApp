@@ -1,0 +1,27 @@
+{
+  "name": "reminderapp",
+  "version": "1.0.0",
+  "description": "ReminderApp is a simple academic productivity web app for students. It helps you stay organised with assignments, deadlines, notes, GPA tracking, and calendar integration in one place.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lusani-Rams1/ReminderApp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Lusani-Rams1/ReminderApp/issues"
+  },
+  "homepage": "https://github.com/Lusani-Rams1/ReminderApp#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3"
+  }
+}
