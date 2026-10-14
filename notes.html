@@ -6,6 +6,12 @@
     <meta name="description" content="A simple, local-only notes editor: write, search, autosave, and export as .txt." />
     <link rel="stylesheet" href="CSS/notes.css" />
     <title>Notes</title>
+
+    <style>
+    html {
+        visibility: hidden;
+    }
+</style>
 </head>
 <body>
 
@@ -124,6 +130,8 @@
             </div>
         </footer>
 
-        <script src="js/theme.js"></script>
-</body>
+        <script src="backend/js/theme.js"></script>
+        <script src="backend/js/auth-guard.js"></script>
+
+    </body>
 </html>

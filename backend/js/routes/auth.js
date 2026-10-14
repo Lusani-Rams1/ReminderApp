@@ -1,3 +1,5 @@
+const authenticateToken = require("../middleware/auth");
+const { requireAuth } = require("../middleware/auth");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -8,10 +10,8 @@ const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// ============================
 // REGISTER
 // POST /api/auth/register
-// ============================
 
 router.post("/register", async (req, res) => {
     try {
@@ -109,11 +109,8 @@ router.post("/register", async (req, res) => {
     }
 });
 
-
-// ============================
 // LOGIN
 // POST /api/auth/login
-// ============================
 
 router.post("/login", async (req, res) => {
     try {
@@ -189,41 +186,16 @@ router.post("/login", async (req, res) => {
     }
 });
 
-
-// ============================
 // GET CURRENT USER
 // GET /api/auth/me
-// ============================
 
-router.get("/me", async (req, res) => {
-
+router.get("/me", requireAuth, async (req, res) => {
     try {
-
-        const header = req.headers.authorization;
-
-        if (!header || !header.startsWith("Bearer ")) {
-            return res.status(401).json({
-                message: "No token provided."
-            });
-        }
-
-        const token = header.split(" ")[1];
-
-        const decoded = jwt.verify(
-            token,
-            JWT_SECRET
-        );
-
         const [users] = await db.execute(
-            `SELECT
-                user_id,
-                full_name,
-                student_number,
-                email,
-                created_at
+            `SELECT user_id, full_name, student_number, email, created_at
              FROM users
              WHERE user_id = ?`,
-            [decoded.userId]
+            [req.user.userId]
         );
 
         if (users.length === 0) {
@@ -243,16 +215,13 @@ router.get("/me", async (req, res) => {
                 createdAt: user.created_at
             }
         });
-
     } catch (error) {
+        console.error("GET ME ERROR:", error);
 
-        console.error("ME ERROR:", error);
-
-        res.status(401).json({
-            message: "Invalid or expired token."
+        res.status(500).json({
+            message: "Unable to retrieve user profile."
         });
     }
 });
-
 
 module.exports = router;
