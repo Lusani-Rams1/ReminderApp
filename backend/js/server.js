@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -9,6 +8,7 @@ require("dotenv").config({
 
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/tasks");
+const categoryRoutes = require("./routes/categories");
 const reminderRoutes = require("./routes/reminders");
 const notificationRoutes = require("./routes/notifications");
 const runReminderScheduler = require("./services/reminderScheduler");
@@ -29,6 +29,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api/reminders", reminderRoutes);
 app.use("/api/notifications", notificationRoutes);
 

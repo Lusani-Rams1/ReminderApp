@@ -1,109 +1,92 @@
-const authenticateToken = require("../middleware/auth");
 const { requireAuth } = require("../middleware/auth");
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
 const db = require("../db");
 
 const router = express.Router();
-
 const JWT_SECRET = process.env.JWT_SECRET;
 
 // REGISTER
 // POST /api/auth/register
-
 router.post("/register", async (req, res) => {
     try {
-        const {
-            fullName,
-            studentNumber,
-            email,
-            password
-        } = req.body;
+        const { fullName, studentNumber, email, password } = req.body;
 
-        // Validate fields
-        if (!fullName || !studentNumber || !email || !password) {
+        if (
+            typeof fullName !== "string" || !fullName.trim() ||
+            typeof studentNumber !== "string" || !studentNumber.trim() ||
+            typeof email !== "string" || !email.trim() ||
+            typeof password !== "string" || !password
+        ) {
             return res.status(400).json({
-                message: "All fields are required."
+                message: "Full name, student number, email and password are required as text."
             });
         }
 
-        // Password validation
+        const cleanFullName = fullName.trim();
+        const cleanStudentNumber = studentNumber.trim();
+        const cleanEmail = email.trim();
+
         if (password.length < 8) {
             return res.status(400).json({
                 message: "Password must be at least 8 characters."
             });
         }
 
-        // Check if email already exists
         const [existingEmail] = await db.execute(
             "SELECT user_id FROM users WHERE email = ?",
-            [email]
+            [cleanEmail]
         );
-
         if (existingEmail.length > 0) {
             return res.status(409).json({
                 message: "An account with that email already exists."
             });
         }
 
-        // Check if student number already exists
         const [existingStudent] = await db.execute(
             "SELECT user_id FROM users WHERE student_number = ?",
-            [studentNumber]
+            [cleanStudentNumber]
         );
-
         if (existingStudent.length > 0) {
             return res.status(409).json({
                 message: "That student number is already registered."
             });
         }
 
-        // Hash password
         const passwordHash = await bcrypt.hash(password, 10);
 
-        // Insert user
+        // The unique indexes are the final protection against simultaneous signups.
         const [result] = await db.execute(
-            `INSERT INTO users
-            (full_name, student_number, email, password_hash)
-            VALUES (?, ?, ?, ?)`,
-            [
-                fullName,
-                studentNumber,
-                email,
-                passwordHash
-            ]
+            `INSERT INTO users (full_name, student_number, email, password_hash)
+             VALUES (?, ?, ?, ?)`,
+            [cleanFullName, cleanStudentNumber, cleanEmail, passwordHash]
         );
 
-        // Generate JWT
         const token = jwt.sign(
-            {
-                userId: result.insertId,
-                email: email
-            },
+            { userId: result.insertId, email: cleanEmail },
             JWT_SECRET,
-            {
-                expiresIn: "7d"
-            }
+            { expiresIn: "7d" }
         );
 
-        res.status(201).json({
+        return res.status(201).json({
             message: "Account created successfully.",
             token,
             user: {
                 userId: result.insertId,
-                fullName,
-                studentNumber,
-                email
+                fullName: cleanFullName,
+                studentNumber: cleanStudentNumber,
+                email: cleanEmail
             }
         });
-
     } catch (error) {
-
+        if (error.code === "ER_DUP_ENTRY") {
+            return res.status(409).json({
+                message: "An account with that email or student number already exists."
+            });
+        }
         console.error("REGISTER ERROR:", error);
-
-        res.status(500).json({
+        return res.status(500).json({
             message: "Server error while creating account."
         });
     }
@@ -111,26 +94,23 @@ router.post("/register", async (req, res) => {
 
 // LOGIN
 // POST /api/auth/login
-
 router.post("/login", async (req, res) => {
     try {
+        const { email, password } = req.body;
 
-        const {
-            email,
-            password
-        } = req.body;
-
-        // Validate
-        if (!email || !password) {
+        if (
+            typeof email !== "string" || !email.trim() ||
+            typeof password !== "string" || !password
+        ) {
             return res.status(400).json({
-                message: "Email and password are required."
+                message: "Email and password are required as text."
             });
         }
 
-        // Find user
+        const cleanEmail = email.trim();
         const [users] = await db.execute(
             "SELECT * FROM users WHERE email = ?",
-            [email]
+            [cleanEmail]
         );
 
         if (users.length === 0) {
@@ -140,12 +120,7 @@ router.post("/login", async (req, res) => {
         }
 
         const user = users[0];
-
-        // Compare password
-        const passwordMatch = await bcrypt.compare(
-            password,
-            user.password_hash
-        );
+        const passwordMatch = await bcrypt.compare(password, user.password_hash);
 
         if (!passwordMatch) {
             return res.status(401).json({
@@ -153,19 +128,13 @@ router.post("/login", async (req, res) => {
             });
         }
 
-        // Generate JWT
         const token = jwt.sign(
-            {
-                userId: user.user_id,
-                email: user.email
-            },
+            { userId: user.user_id, email: user.email },
             JWT_SECRET,
-            {
-                expiresIn: "7d"
-            }
+            { expiresIn: "7d" }
         );
 
-        res.json({
+        return res.json({
             message: "Login successful.",
             token,
             user: {
@@ -175,12 +144,9 @@ router.post("/login", async (req, res) => {
                 email: user.email
             }
         });
-
     } catch (error) {
-
         console.error("LOGIN ERROR:", error);
-
-        res.status(500).json({
+        return res.status(500).json({
             message: "Server error while logging in."
         });
     }
@@ -188,25 +154,20 @@ router.post("/login", async (req, res) => {
 
 // GET CURRENT USER
 // GET /api/auth/me
-
 router.get("/me", requireAuth, async (req, res) => {
     try {
         const [users] = await db.execute(
             `SELECT user_id, full_name, student_number, email, created_at
-             FROM users
-             WHERE user_id = ?`,
+             FROM users WHERE user_id = ?`,
             [req.user.userId]
         );
 
         if (users.length === 0) {
-            return res.status(404).json({
-                message: "User not found."
-            });
+            return res.status(404).json({ message: "User not found." });
         }
 
         const user = users[0];
-
-        res.json({
+        return res.json({
             user: {
                 userId: user.user_id,
                 fullName: user.full_name,
@@ -217,8 +178,7 @@ router.get("/me", requireAuth, async (req, res) => {
         });
     } catch (error) {
         console.error("GET ME ERROR:", error);
-
-        res.status(500).json({
+        return res.status(500).json({
             message: "Unable to retrieve user profile."
         });
     }
