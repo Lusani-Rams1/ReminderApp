@@ -151,3 +151,151 @@ async function addTask(event) {
         }
 
     };
+
+    async function loadTasks() {
+    const API_BASE_URL = "http://localhost:5000";
+    const token = localStorage.getItem("token");
+    const container = document.getElementById("taskContainer");
+
+    if (!container) {
+        console.error("Task container not found.");
+        return;
+    }
+
+    if (!token) {
+        console.error("No authentication token found.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                result.message || "Failed to load assignments."
+            );
+        }
+
+        if (!Array.isArray(result.tasks)) {
+            throw new Error("The server returned an unexpected task format.");
+        }
+
+        // Remove old cards before displaying database records.
+        container.innerHTML = "";
+
+        result.tasks.forEach(task => {
+            const card = document.createElement("div");
+            card.className = "task-card";
+            card.dataset.status = task.status || "pending";
+
+            const dueDate = task.due_date
+                ? new Date(task.due_date).toLocaleDateString("en-GB")
+                : "No due date";
+
+            const title = document.createElement("div");
+            title.className = "task-title";
+            title.textContent = task.title;
+
+            const description = document.createElement("p");
+            description.className = "task-description";
+            description.textContent = task.description || "";
+
+            const date = document.createElement("div");
+            date.className = "due-date";
+            date.textContent = `Due: ${dueDate}`;
+
+            const actions = document.createElement("div");
+            actions.className = "task-actions";
+
+            const completeButton = document.createElement("button");
+            completeButton.className = "complete-btn";
+            completeButton.textContent =
+                task.status === "completed"
+                    ? "Completed"
+                    : "Mark Complete";
+
+            completeButton.disabled = task.status === "completed";
+
+            completeButton.addEventListener("click", async () => {
+                try {
+                    const update = await fetch(
+                        `${API_BASE_URL}/api/tasks/${task.task_id}`,
+                        {
+                            method: "PATCH",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                status: "completed"
+                            })
+                        }
+                    );
+
+                    const data = await update.json();
+
+                    if (!update.ok) {
+                        throw new Error(
+                            data.message || "Could not complete assignment."
+                        );
+                    }
+
+                    await loadTasks();
+                } catch (error) {
+                    console.error(error);
+                    alert(error.message);
+                }
+            });
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "delete-btn";
+            deleteButton.textContent = "Delete";
+
+            deleteButton.addEventListener("click", async () => {
+                if (!confirm("Delete this assignment?")) return;
+
+                try {
+                    const deletion = await fetch(
+                        `${API_BASE_URL}/api/tasks/${task.task_id}`,
+                        {
+                            method: "DELETE",
+                            headers: {
+                                "Authorization": `Bearer ${token}`
+                            }
+                        }
+                    );
+
+                    const data = await deletion.json();
+
+                    if (!deletion.ok) {
+                        throw new Error(
+                            data.message || "Could not delete assignment."
+                        );
+                    }
+
+                    await loadTasks();
+                } catch (error) {
+                    console.error(error);
+                    alert(error.message);
+                }
+            });
+
+            actions.append(completeButton, deleteButton);
+            card.append(title, description, date, actions);
+            container.appendChild(card);
+        });
+
+    } catch (error) {
+        console.error("Error loading assignments:", error);
+        alert("Could not load assignments: " + error.message);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadTasks);
