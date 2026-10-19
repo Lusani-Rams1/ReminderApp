@@ -8,71 +8,80 @@ document.addEventListener("DOMContentLoaded", () => {
 async function loadUpcomingSubmission() {
     const card = document.getElementById("upcoming-submissions");
 
-    if (!card) return;
+    if (!card) {
+        console.error("Dashboard card #upcoming-submissions was not found.");
+        return;
+    }
+
+    card.textContent = "Loading submissions...";
 
     const token = localStorage.getItem("token");
 
     if (!token) {
-        card.textContent = "Please log in to view upcoming submissions.";
+        card.textContent = "Please log in to view submissions.";
         return;
     }
 
     try {
         const response = await fetch(`${API_BASE_URL}/api/tasks`, {
-            method: "GET",
             headers: {
                 Authorization: `Bearer ${token}`
             }
         });
 
-        if (response.status === 401) {
-            card.textContent = "Your session has expired. Please log in again.";
-            return;
-        }
-
         if (!response.ok) {
-            throw new Error("Unable to load tasks.");
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(
+                errorData.message || `Request failed (${response.status})`
+            );
         }
 
         const data = await response.json();
-        const tasks = Array.isArray(data.tasks) ? data.tasks : [];
 
-        const now = new Date();
-
-        const upcomingTasks = tasks
-            .filter(task =>
-                task.due_date &&
-                task.status !== "completed" &&
-                new Date(task.due_date) >= now
-            )
-            .sort((a, b) =>
-                new Date(a.due_date) - new Date(b.due_date)
-            );
-
-        const nextTask = upcomingTasks[0];
-
-        if (!nextTask) {
-            card.textContent = "No upcoming submissions.";
-            return;
+        if (!Array.isArray(data.tasks)) {
+            throw new Error("The API response did not contain a tasks array.");
         }
 
-        const dueDate = new Date(nextTask.due_date);
+        const tasks = data.tasks
+            .filter(task => task.due_date && task.status !== "completed")
+            .map(task => ({
+                ...task,
+                parsedDueDate: new Date(task.due_date)
+            }))
+            .filter(task => !Number.isNaN(task.parsedDueDate.getTime()))
+            .sort((a, b) => a.parsedDueDate - b.parsedDueDate);
 
         card.replaceChildren();
 
         const heading = document.createElement("h3");
         heading.textContent = "Upcoming submission";
+        card.appendChild(heading);
 
-        const taskTitle = document.createElement("p");
-        taskTitle.textContent = nextTask.title;
+        if (tasks.length === 0) {
+            const message = document.createElement("p");
+            message.textContent = "No incomplete submissions with due dates.";
+            card.appendChild(message);
+            return;
+        }
 
-        const dueText = document.createElement("p");
-        dueText.textContent = `Due: ${dueDate.toLocaleString()}`;
+        const nextTask = tasks[0];
+        const now = new Date();
+        const isOverdue = nextTask.parsedDueDate < now;
 
-        card.append(heading, taskTitle, dueText);
+        const title = document.createElement("p");
+        title.textContent = nextTask.title;
+
+        const dueDate = document.createElement("p");
+        dueDate.textContent =
+            "Due: " + nextTask.parsedDueDate.toLocaleString();
+
+        const status = document.createElement("p");
+        status.textContent = isOverdue ? "Status: Overdue" : "Status: Upcoming";
+
+        card.append(title, dueDate, status);
 
     } catch (error) {
-        console.error("Dashboard task error:", error);
-        card.textContent = "Unable to load submissions. Check that the API server is running.";
+        console.error("Dashboard submissions error:", error);
+        card.textContent = "Unable to load submissions. Check the browser console.";
     }
 }
