@@ -79,6 +79,153 @@ async function addTask(event) {
 }
 
 
+async function addTask(event) {
+    event.preventDefault();
+
+    const form = event.currentTarget;
+
+    const name = document.getElementById("assignmentName").value.trim();
+    const module = document.getElementById("assignmentModule").value.trim();
+    const date = document.getElementById("assignmentDate").value;
+    const description = document.getElementById("assignmentDescription").value.trim();
+    const reminderAt = document.getElementById("reminderDateTime").value;
+
+    if (!name || !date) {
+        alert("Please enter an assignment name and due date.");
+        return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        alert("Your session has expired. Please log in again.");
+        return;
+    }
+
+    // Validate an optional reminder before creating the task.
+    if (reminderAt) {
+        const reminderDate = new Date(reminderAt);
+        const dueDate = new Date(`${date}T23:59:59`);
+
+        if (Number.isNaN(reminderDate.getTime())) {
+            alert("Please select a valid reminder date and time.");
+            return;
+        }
+
+        if (reminderDate <= new Date()) {
+            alert("The reminder must be set for a future time.");
+            return;
+        }
+
+        if (reminderDate > dueDate) {
+            alert("Choose a reminder time before the assignment deadline.");
+            return;
+        }
+    }
+
+    const API_BASE_URL = "http://localhost:5000";
+
+    try {
+        // First, save the assignment.
+        const taskResponse = await fetch(`${API_BASE_URL}/api/tasks`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                title: name,
+                description: [module, description]
+                    .filter(Boolean)
+                    .join(" — "),
+                dueDate: date,
+                priority: "medium"
+            })
+        });
+
+        const taskResult = await taskResponse.json();
+
+        if (!taskResponse.ok) {
+            throw new Error(
+                taskResult.message || "Failed to save assignment."
+            );
+        }
+
+        // Only create a reminder if the student selected a time.
+        if (reminderAt) {
+            const taskId = taskResult.taskId ?? taskResult.task_id;
+
+            if (!taskId) {
+                alert(
+                    "Assignment saved, but the server did not return its ID. " +
+                    "The reminder was not created."
+                );
+
+                form.reset();
+
+                if (typeof closeModal === "function") closeModal();
+                await loadTasks();
+                return;
+            }
+
+            try {
+                const reminderResponse = await fetch(
+                    `${API_BASE_URL}/api/reminders`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            message: `Reminder: ${name}${module ? ` (${module})` : ""} is due on ${date}.`,
+                            remindAt: reminderAt,
+                            taskId: taskId
+                        })
+                    }
+                );
+
+                const reminderResult = await reminderResponse.json();
+
+                if (!reminderResponse.ok) {
+                    throw new Error(
+                        reminderResult.message || "Could not create reminder."
+                    );
+                }
+
+                alert("Assignment and reminder saved successfully!");
+
+            } catch (reminderError) {
+                console.error("Reminder creation failed:", reminderError);
+
+                // The assignment was already saved; don't imply otherwise.
+                alert(
+                    "Assignment saved successfully, but the reminder could not " +
+                    "be created: " + reminderError.message
+                );
+            }
+        } else {
+            alert("Assignment saved successfully!");
+        }
+
+        form.reset();
+
+        if (typeof closeModal === "function") {
+            closeModal();
+        }
+
+        if (typeof loadTasks === "function") {
+            await loadTasks();
+        } else {
+            window.location.reload();
+        }
+
+    } catch (error) {
+        console.error("Error saving assignment:", error);
+        alert("Could not save assignment: " + error.message);
+    }
+}
+
     function completeTask(button) {
 
         const card =
