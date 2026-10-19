@@ -1,5 +1,4 @@
-
-const API_BASE_URL = "http://localhost:5000";
+windows.API_BASE_URL = "http://localhost:5000";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadUpcomingSubmission();
@@ -23,7 +22,7 @@ async function loadUpcomingSubmission() {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/tasks`, {
+        const response = await fetch(`${windows.API_BASE_URL}/api/tasks`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
