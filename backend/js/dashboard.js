@@ -24,7 +24,7 @@ async function loadUpcomingSubmission() {
     try {
         const response = await fetch(`${window.API_BASE_URL}/api/tasks`, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${localStorage.getItem("token")}`
             }
         });
 
