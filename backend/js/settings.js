@@ -1,115 +1,74 @@
-    /* DARK MODE */
+// CampusSync settings: persist user preferences on this device.
+document.addEventListener("DOMContentLoaded", function () {
+    const SETTINGS_KEY = "campusSyncSettings";
+    const language = document.getElementById("language");
+    const syncButton = document.querySelector(".sync-btn");
+    const syncStatusText = document.getElementById("syncStatusText");
 
-    const darkMode =
-        document.getElementById("darkMode");
-
-
-    darkMode.addEventListener(
-        "change",
-        function() {
-
-            document.body.classList.toggle(
-                "dark",
-                this.checked
-            );
-
-
-            localStorage.setItem(
-                "campusSyncDarkMode",
-                this.checked
-            );
-
+    function readSettings() {
+        try {
+            return JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
+        } catch (error) {
+            console.warn("Saved settings could not be read.", error);
+            return {};
         }
-    );
-
-
-    /* LOAD SAVED DARK MODE */
-
-    const savedDarkMode =
-        localStorage.getItem(
-            "campusSyncDarkMode"
-        );
-
-
-    if (savedDarkMode === "true") {
-
-        darkMode.checked = true;
-
-        document.body.classList.add("dark");
-
     }
 
-    /* LANGUAGE */
+    function saveSettings(settings) {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    }
 
-    const language =
-        document.getElementById("language");
+    let settings = readSettings();
 
+    // Restore and persist the preference switches.
+    document.querySelectorAll("[data-preference]").forEach(function (input) {
+        const key = input.dataset.preference;
+        if (Object.prototype.hasOwnProperty.call(settings, key)) {
+            input.checked = Boolean(settings[key]);
+        }
 
-    language.addEventListener(
-        "change",
-        function() {
+        input.addEventListener("change", function () {
+            settings[key] = input.checked;
+            saveSettings(settings);
+        });
+    });
 
-            localStorage.setItem(
-                "campusSyncLanguage",
-                this.value
-            );
+    // Keep the language selection across visits. Selecting isiZulu is saved,
+    // but full translation requires translated page content to be implemented.
+    if (language) {
+        language.value = settings.language || localStorage.getItem("campusSyncLanguage") || "english";
 
+        language.addEventListener("change", function () {
+            settings.language = language.value;
+            localStorage.setItem("campusSyncLanguage", language.value);
+            saveSettings(settings);
 
-            if (this.value === "zulu") {
+            if (language.value === "zulu") {
+                alert("isiZulu is saved as your preferred language. Full page translation is not available yet.");
+            }
+        });
+    }
 
-                alert(
-                    "isiZulu language support selected."
-                );
+    // Sync Now confirms that local preferences can be read and saved.
+    // This is a local preference check, not a server/database sync.
+    if (syncButton) {
+        syncButton.addEventListener("click", function () {
+            syncButton.disabled = true;
+            syncButton.textContent = "Checking...";
+            settings = readSettings();
+            saveSettings(settings);
 
+            if (syncStatusText) {
+                syncStatusText.textContent = "Preferences saved on this device.";
             }
 
-        }
-    );
-
-    /* LOAD LANGUAGE */
-
-    const savedLanguage =
-        localStorage.getItem(
-            "campusSyncLanguage"
-        );
-
-
-    if (savedLanguage) {
-
-        language.value = savedLanguage;
-
+            window.setTimeout(function () {
+                syncButton.textContent = "Saved ✓";
+                window.setTimeout(function () {
+                    syncButton.textContent = "Sync Now";
+                    syncButton.disabled = false;
+                }, 1200);
+            }, 300);
+        });
     }
-
-    /* SYNC */
-
-    function syncData() {
-
-        const button =
-            document.querySelector(".sync-btn");
-
-
-        button.textContent =
-            "Syncing...";
-
-
-        button.disabled = true;
-
-
-        setTimeout(function() {
-
-            button.textContent =
-                "Synced ✓";
-
-
-            setTimeout(function() {
-
-                button.textContent =
-                    "Sync Now";
-
-                button.disabled = false;
-
-            }, 1500);
-
-        }, 1500);
-
-    }
+});
