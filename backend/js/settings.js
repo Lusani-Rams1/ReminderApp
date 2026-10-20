@@ -1,74 +1,132 @@
-// CampusSync settings: persist user preferences on this device.
-document.addEventListener("DOMContentLoaded", function () {
+// Account-based settings with local storage as an immediate fallback.
+document.addEventListener("DOMContentLoaded", async function () {
     const SETTINGS_KEY = "campusSyncSettings";
+    const API_BASE_URL = window.API_BASE_URL || "http://localhost:5000";
     const language = document.getElementById("language");
     const syncButton = document.querySelector(".sync-btn");
     const syncStatusText = document.getElementById("syncStatusText");
+    const preferenceInputs = Array.from(document.querySelectorAll("[data-preference]"));
+    const darkMode = document.getElementById("darkMode");
 
-    function readSettings() {
-        try {
-            return JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}");
-        } catch (error) {
-            console.warn("Saved settings could not be read.", error);
-            return {};
-        }
+    function readLocalSettings() {
+        try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}"); }
+        catch (error) { return {}; }
     }
 
-    function saveSettings(settings) {
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    function collectSettings() {
+        return {
+            theme: darkMode?.checked ? "dark" : "light",
+            language: language?.value || "english",
+            assignmentAlerts: document.getElementById("assignmentAlerts")?.checked ?? true,
+            classReminders: document.getElementById("classReminders")?.checked ?? true,
+            announcements: document.getElementById("announcements")?.checked ?? true,
+            offlineMode: document.getElementById("offlineMode")?.checked ?? true
+        };
     }
 
-    let settings = readSettings();
-
-    // Restore and persist the preference switches.
-    document.querySelectorAll("[data-preference]").forEach(function (input) {
-        const key = input.dataset.preference;
-        if (Object.prototype.hasOwnProperty.call(settings, key)) {
-            input.checked = Boolean(settings[key]);
+    function applySettings(settings) {
+        if (settings.theme) {
+            const isDark = settings.theme === "dark";
+            if (darkMode) darkMode.checked = isDark;
+            document.documentElement.classList.toggle("dark", isDark);
+            document.body.classList.toggle("dark", isDark);
+            localStorage.setItem("theme", settings.theme);
+            localStorage.setItem("campusSyncDarkMode", String(isDark));
         }
-
-        input.addEventListener("change", function () {
-            settings[key] = input.checked;
-            saveSettings(settings);
+        if (language && settings.language) {
+            language.value = settings.language;
+            localStorage.setItem("campusSyncLanguage", settings.language);
+        }
+        preferenceInputs.forEach(input => {
+            const value = settings[input.dataset.preference];
+            if (typeof value === "boolean") input.checked = value;
         });
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...readLocalSettings(), ...settings }));
+    }
+
+    async function requestSettings(method, settings) {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Please log in to sync settings to your account.");
+        const response = await fetch(API_BASE_URL + "/api/settings", {
+            method,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            ...(settings ? { body: JSON.stringify(settings) } : {})
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || "Account settings request failed.");
+        return data;
+    }
+
+    // Show the saved device copy immediately, then load the account copy.
+    applySettings({
+        theme: localStorage.getItem("theme") ||
+            (localStorage.getItem("campusSyncDarkMode") === "true" ? "dark" : "light"),
+        language: localStorage.getItem("campusSyncLanguage") || "english",
+        ...readLocalSettings()
     });
 
-    // Keep the language selection across visits. Selecting isiZulu is saved,
-    // but full translation requires translated page content to be implemented.
-    if (language) {
-        language.value = settings.language || localStorage.getItem("campusSyncLanguage") || "english";
-
-        language.addEventListener("change", function () {
-            settings.language = language.value;
-            localStorage.setItem("campusSyncLanguage", language.value);
-            saveSettings(settings);
-
-            if (language.value === "zulu") {
-                alert("isiZulu is saved as your preferred language. Full page translation is not available yet.");
-            }
-        });
+    if (localStorage.getItem("token")) {
+        try {
+            const data = await requestSettings("GET");
+            applySettings(data.settings || {});
+            if (syncStatusText) syncStatusText.textContent = "Settings loaded from your account.";
+        } catch (error) {
+            console.warn("Account settings unavailable; using device copy.", error);
+            if (syncStatusText) syncStatusText.textContent = "Using device settings; account sync unavailable.";
+        }
+    } else if (syncStatusText) {
+        syncStatusText.textContent = "Saved on this device. Log in to sync across devices.";
     }
 
-    // Sync Now confirms that local preferences can be read and saved.
-    // This is a local preference check, not a server/database sync.
+    async function persistCurrentSettings() {
+        const settings = collectSettings();
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        applySettings(settings);
+        if (!localStorage.getItem("token")) {
+            if (syncStatusText) syncStatusText.textContent = "Saved on this device. Log in to sync across devices.";
+            return;
+        }
+        try {
+            const data = await requestSettings("PUT", settings);
+            applySettings(data.settings || settings);
+            if (syncStatusText) syncStatusText.textContent = "Settings saved to your account.";
+        } catch (error) {
+            console.error("Settings account save failed:", error);
+            if (syncStatusText) syncStatusText.textContent = "Account sync failed; device copy saved.";
+        }
+    }
+
+    preferenceInputs.forEach(input => input.addEventListener("change", persistCurrentSettings));
+    if (language) language.addEventListener("change", async function () {
+        await persistCurrentSettings();
+        if (language.value === "zulu") {
+            alert("isiZulu preference saved. Full page translation is not available yet.");
+        }
+    });
+    if (darkMode) darkMode.addEventListener("change", persistCurrentSettings);
+
     if (syncButton) {
-        syncButton.addEventListener("click", function () {
+        syncButton.removeAttribute("onclick");
+        syncButton.addEventListener("click", async function () {
             syncButton.disabled = true;
-            syncButton.textContent = "Checking...";
-            settings = readSettings();
-            saveSettings(settings);
-
-            if (syncStatusText) {
-                syncStatusText.textContent = "Preferences saved on this device.";
-            }
-
-            window.setTimeout(function () {
-                syncButton.textContent = "Saved ✓";
-                window.setTimeout(function () {
+            syncButton.textContent = "Syncing...";
+            try {
+                const data = await requestSettings("PUT", collectSettings());
+                applySettings(data.settings || collectSettings());
+                if (syncStatusText) syncStatusText.textContent = "Settings synced with your account.";
+                syncButton.textContent = "Synced ✓";
+            } catch (error) {
+                if (syncStatusText) syncStatusText.textContent = error.message;
+                syncButton.textContent = "Sync failed";
+            } finally {
+                window.setTimeout(() => {
                     syncButton.textContent = "Sync Now";
                     syncButton.disabled = false;
-                }, 1200);
-            }, 300);
+                }, 1600);
+            }
         });
     }
 });
