@@ -1,17 +1,22 @@
-// theme.js
-// Pairs with the inline snippet at the top of <body> that prevents a flash
-// of the wrong theme on load.
+// Apply the same saved theme on every page.
+(function () {
+    const savedTheme = localStorage.getItem("theme") ||
+        (localStorage.getItem("campusSyncDarkMode") === "true" ? "dark" : "light");
 
-document.addEventListener('DOMContentLoaded', function () {
-  const toggle = document.getElementById('darkMode');
-  if (!toggle) return;
+    document.documentElement.classList.toggle("dark", savedTheme === "dark");
+    document.addEventListener("DOMContentLoaded", function () {
+        document.body.classList.toggle("dark", savedTheme === "dark");
 
-  // Sync the switch's visual state with whatever theme is currently applied
-  // (the inline snippet in <body> already set the class before this ran).
-  toggle.checked = document.body.classList.contains('dark');
+        const toggle = document.getElementById("darkMode");
+        if (!toggle) return;
 
-  toggle.addEventListener('change', function () {
-    document.body.classList.toggle('dark', toggle.checked);
-    localStorage.setItem('theme', toggle.checked ? 'dark' : 'light');
-  });
-});
+        toggle.checked = savedTheme === "dark";
+        toggle.addEventListener("change", function () {
+            const theme = toggle.checked ? "dark" : "light";
+            localStorage.setItem("theme", theme);
+            localStorage.setItem("campusSyncDarkMode", String(toggle.checked));
+            document.documentElement.classList.toggle("dark", toggle.checked);
+            document.body.classList.toggle("dark", toggle.checked);
+        });
+    });
+})();
