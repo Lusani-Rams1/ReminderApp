@@ -1,22 +1,40 @@
-// Apply the same saved theme on every page.
+// Apply the cached theme immediately; refresh it from the signed-in account.
 (function () {
-    const savedTheme = localStorage.getItem("theme") ||
-        (localStorage.getItem("campusSyncDarkMode") === "true" ? "dark" : "light");
+    const API_BASE_URL = window.API_BASE_URL || "http://localhost:5000";
 
-    document.documentElement.classList.toggle("dark", savedTheme === "dark");
-    document.addEventListener("DOMContentLoaded", function () {
-        document.body.classList.toggle("dark", savedTheme === "dark");
-
+    function applyTheme(theme) {
+        const isDark = theme === "dark";
+        document.documentElement.classList.toggle("dark", isDark);
+        if (document.body) document.body.classList.toggle("dark", isDark);
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        localStorage.setItem("campusSyncDarkMode", String(isDark));
         const toggle = document.getElementById("darkMode");
-        if (!toggle) return;
+        if (toggle) toggle.checked = isDark;
+    }
 
-        toggle.checked = savedTheme === "dark";
-        toggle.addEventListener("change", function () {
-            const theme = toggle.checked ? "dark" : "light";
-            localStorage.setItem("theme", theme);
-            localStorage.setItem("campusSyncDarkMode", String(toggle.checked));
-            document.documentElement.classList.toggle("dark", toggle.checked);
-            document.body.classList.toggle("dark", toggle.checked);
-        });
+    const cachedTheme = localStorage.getItem("theme") ||
+        (localStorage.getItem("campusSyncDarkMode") === "true" ? "dark" : "light");
+    applyTheme(cachedTheme);
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggle = document.getElementById("darkMode");
+
+        // settings.js owns saving the switch on Settings to avoid duplicate requests.
+        if (toggle) {
+            toggle.addEventListener("change", function () {
+                applyTheme(toggle.checked ? "dark" : "light");
+            });
+        }
+
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        fetch(API_BASE_URL + "/api/settings", {
+            headers: { "Authorization": "Bearer " + token }
+        }).then(async response => {
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.message || "Could not load account theme.");
+            if (data.settings?.theme) applyTheme(data.settings.theme);
+        }).catch(error => console.warn("Account theme unavailable; using cached theme.", error));
     });
 })();
