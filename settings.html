@@ -163,9 +163,7 @@
 
             <label class="switch">
 
-                  <input type="checkbox"
-                      aria-label="Assignment Alerts"
-                      checked>
+                  <input type="checkbox" id="assignmentAlerts" data-preference="assignmentAlerts" aria-label="Assignment Alerts" checked>
 
                 <span class="slider"></span>
 
@@ -189,9 +187,7 @@
 
             <label class="switch">
 
-                  <input type="checkbox"
-                      aria-label="Class Reminders"
-                      checked>
+                  <input type="checkbox" id="classReminders" data-preference="classReminders" aria-label="Class Reminders" checked>
 
                 <span class="slider"></span>
 
@@ -215,9 +211,7 @@
 
             <label class="switch">
 
-                  <input type="checkbox"
-                      aria-label="Announcements"
-                      checked>
+                  <input type="checkbox" id="announcements" data-preference="announcements" aria-label="Announcements" checked>
 
                 <span class="slider"></span>
 
@@ -251,10 +245,7 @@
 
             <label class="switch">
 
-                <input type="checkbox"
-                       id="offlineMode"
-                      aria-label="Offline Mode"
-                       checked>
+                <input type="checkbox" id="offlineMode" data-preference="offlineMode" aria-label="Offline Mode" checked>
 
                 <span class="slider"></span>
 
@@ -275,7 +266,7 @@
                 </div>
 
                 <div class="setting-description">
-                    Last synced: Today, 13:42
+                    <span id="syncStatusText">Preferences are saved on this device.</span>
                 </div>
 
             </div>
