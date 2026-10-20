@@ -115,157 +115,243 @@
 </footer>
 
 <script>
-    const STORAGE_KEY = 'campusSyncNotifications';
+const API_BASE_URL = "http://localhost:5000";
 
-    const iconByType = {
-        task: 'fa-clipboard-list',
-        exam: 'fa-graduation-cap',
-        note: 'fa-note-sticky',
-        system: 'fa-circle-info'
-    };
+const iconByType = {
+    task: "fa-clipboard-list",
+    exam: "fa-graduation-cap",
+    note: "fa-sticky-note",
+    system: "fa-circle-info"
+};
 
-    const defaultNotifications = [
-        {
-            id: 'n1',
-            type: 'exam',
-            title: 'Exam countdown',
-            message: 'Database Systems exam is in 5 days. Time to start revising.',
-            time: '2h ago',
-            read: false
-        },
-        {
-            id: 'n2',
-            type: 'task',
-            title: 'Assignment due soon',
-            message: '"Mobile App PoE" is due on 20 August 2026.',
-            time: '5h ago',
-            read: false
-        },
-        {
-            id: 'n3',
-            type: 'task',
-            title: 'Assignment due soon',
-            message: '"Database Project" is due on 25 August 2026.',
-            time: '1d ago',
-            read: true
-        },
-        {
-            id: 'n4',
-            type: 'note',
-            title: 'Note reminder',
-            message: 'You have an unfinished note in "Database Systems". Pick up where you left off.',
-            time: '2d ago',
-            read: true
-        },
-        {
-            id: 'n5',
-            type: 'system',
-            title: 'Welcome to CampusSync',
-            message: 'Set up your profile and add your first task to get started.',
-            time: '3d ago',
-            read: true
-        }
-    ];
+let notifications = [];
+let activeFilter = "all";
 
-    let notifications = [];
-    let activeFilter = 'all';
+async function loadNotifications() {
+    const token = localStorage.getItem("token");
 
-    function loadNotifications() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-            try {
-                notifications = JSON.parse(saved);
-                return;
-            } catch (e) {
-                // fall through to defaults on malformed data
+    if (!token) {
+        showNotificationError("Please log in to view your notifications.");
+        return;
+    }
+
+    const list = document.getElementById("notifList");
+    if (list) list.textContent = "Loading notifications...";
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/api/notifications`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             }
-        }
-        notifications = defaultNotifications;
-        saveNotifications();
-    }
+        );
 
-    function saveNotifications() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(notifications));
-    }
+        const data = await response.json();
 
-    function render() {
-        const list = document.getElementById('notifList');
-        const empty = document.getElementById('notifEmpty');
-
-        const visible = notifications.filter(n => {
-            if (activeFilter === 'all') return true;
-            if (activeFilter === 'unread') return !n.read;
-            return n.type === activeFilter;
-        });
-
-        list.innerHTML = '';
-
-        if (visible.length === 0) {
-            empty.style.display = 'block';
-        } else {
-            empty.style.display = 'none';
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Unable to load notifications."
+            );
         }
 
-        visible.forEach(n => {
-            const card = document.createElement('div');
-            card.className = 'notif-card' + (n.read ? '' : ' unread');
-            card.dataset.id = n.id;
+        notifications = (data.notifications || []).map(n => ({
+            ...n,
+            read: Boolean(n.is_read),
+            type: n.reminder_id ? "task" : "system"
+        }));
 
-            card.innerHTML = `
-                <div class="notif-icon type-${n.type}">
-                    <i class="fas ${iconByType[n.type] || 'fa-bell'}"></i>
-                </div>
-                <div class="notif-body">
-                    <div class="notif-top-row">
-                        <div class="notif-title">${n.title}</div>
-                        <div class="notif-time">${n.time}</div>
-                    </div>
-                    <div class="notif-message">${n.message}</div>
-                </div>
-                ${!n.read ? '<div class="notif-dot" title="Unread"></div>' : ''}
-                <button type="button" class="notif-remove" title="Dismiss" aria-label="Dismiss">&times;</button>
-            `;
+        render();
+    } catch (error) {
+        console.error("Loading notifications failed:", error);
+        showNotificationError(error.message);
+    }
+}
 
-            card.addEventListener('click', (e) => {
-                if (e.target.closest('.notif-remove')) return;
-                n.read = true;
-                saveNotifications();
-                render();
-            });
+function showNotificationError(message) {
+    const list = document.getElementById("notifList");
+    const empty = document.getElementById("notifEmpty");
 
-            card.querySelector('.notif-remove').addEventListener('click', () => {
-                notifications = notifications.filter(item => item.id !== n.id);
-                saveNotifications();
-                render();
-            });
+    if (list) list.replaceChildren();
 
-            list.appendChild(card);
-        });
+    if (empty) {
+        empty.textContent = message;
+        empty.style.display = "block";
+    }
+}
+
+function formatNotificationTime(value) {
+    if (!value) return "";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return "";
+
+    return date.toLocaleString([], {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+}
+
+function render() {
+    const list = document.getElementById("notifList");
+    const empty = document.getElementById("notifEmpty");
+
+    if (!list || !empty) {
+        console.error("Notification list elements were not found.");
+        return;
     }
 
-    document.getElementById('markAllBtn').addEventListener('click', () => {
-        notifications.forEach(n => { n.read = true; });
-        saveNotifications();
-        render();
+    list.replaceChildren();
+
+    const visible = notifications.filter(n => {
+        if (activeFilter === "all") return true;
+        if (activeFilter === "unread") return !n.read;
+        return n.type === activeFilter;
     });
 
-    document.getElementById('clearAllBtn').addEventListener('click', () => {
-        notifications = [];
-        saveNotifications();
-        render();
-    });
+    empty.textContent = visible.length
+        ? ""
+        : "No notifications to show.";
 
-    document.querySelectorAll('.notif-filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.notif-filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            activeFilter = btn.dataset.filter;
-            render();
+    empty.style.display = visible.length ? "none" : "block";
+
+    visible.forEach(n => {
+        const card = document.createElement("div");
+        card.className = "notif-card" + (n.read ? "" : " unread");
+        card.dataset.id = n.notification_id;
+
+        const icon = document.createElement("div");
+        icon.className = `notif-icon type-${n.type}`;
+
+        const iconElement = document.createElement("i");
+        iconElement.className =
+            `fas ${iconByType[n.type] || "fa-bell"}`;
+        icon.appendChild(iconElement);
+
+        const body = document.createElement("div");
+        body.className = "notif-body";
+
+        const topRow = document.createElement("div");
+        topRow.className = "notif-top-row";
+
+        const title = document.createElement("div");
+        title.className = "notif-title";
+        title.textContent = n.title || "CampusSync Notification";
+
+        const time = document.createElement("div");
+        time.className = "notif-time";
+        time.textContent = formatNotificationTime(n.created_at);
+
+        topRow.append(title, time);
+
+        const message = document.createElement("div");
+        message.className = "notif-message";
+        message.textContent = n.message || "";
+
+        body.append(topRow, message);
+        card.append(icon, body);
+
+        if (!n.read) {
+            const dot = document.createElement("div");
+            dot.className = "notif-dot";
+            dot.title = "Unread";
+            card.appendChild(dot);
+        }
+
+        card.addEventListener("click", async () => {
+            if (!n.read) {
+                await markAsRead(n.notification_id);
+            }
         });
+
+        list.appendChild(card);
     });
 
-    loadNotifications();
-    render();
+    // Update the bell's unread badge if the page has one.
+    const unreadCount = notifications.filter(n => !n.read).length;
+    const badge = document.getElementById("unreadCount");
+
+    if (badge) {
+        badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
+        badge.style.display = unreadCount ? "inline-flex" : "none";
+    }
+}
+
+async function markAsRead(notificationId) {
+    const token = localStorage.getItem("token");
+
+    try {
+        const response = await fetch(
+            `${API_BASE_URL}/api/notifications/${notificationId}/read`,
+            {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Could not mark notification as read."
+            );
+        }
+
+        const notification = notifications.find(
+            n => n.notification_id === notificationId
+        );
+
+        if (notification) {
+            notification.read = true;
+        }
+
+        render();
+    } catch (error) {
+        console.error("Mark as read failed:", error);
+        alert(error.message);
+    }
+}
+
+const markAllBtn = document.getElementById("markAllBtn");
+
+if (markAllBtn) {
+    markAllBtn.addEventListener("click", async () => {
+        const unread = notifications.filter(n => !n.read);
+
+        for (const notification of unread) {
+            await markAsRead(notification.notification_id);
+        }
+    });
+}
+
+const clearAllBtn = document.getElementById("clearAllBtn");
+
+if (clearAllBtn) {
+    clearAllBtn.addEventListener("click", () => {
+        alert(
+            "Deleting notifications is not available in the backend yet. " +
+            "Your saved notifications have not been deleted."
+        );
+    });
+}
+
+document.querySelectorAll(".notif-filter-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        document.querySelectorAll(".notif-filter-btn").forEach(btn => {
+            btn.classList.remove("active");
+        });
+
+        button.classList.add("active");
+        activeFilter = button.dataset.filter;
+        render();
+    });
+});
+
+loadNotifications();
 </script>
 
 <script src="backend/js/theme.js"></script>
