@@ -431,22 +431,31 @@ page-footer {
 }
 
 /* MOBILE */
-@media(max-width: 750px) {
+@media (max-width: 750px) {
     .top-bar {
         grid-template-columns: 1fr auto;
-        padding: 0 20px;
+        padding: 12px 20px;
+        gap: 12px;
     }
 
     .top-bar h1 {
         font-size: 1.2rem;
-    .icon-group,
-    .auth-actions {
-
-    .icon-group {
-        grid-column: 2;
     }
 
     .menu-bar {
+        display: none;
+    }
+
+    .icon-group,
+    .auth-actions {
+        grid-column: 2;
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .auth-actions .user-name {
         display: none;
     }
 
@@ -456,5 +465,9 @@ page-footer {
 
     .setting {
         gap: 15px;
+    }
+
+    .page-footer {
+        padding: 24px 20px;
     }
 }
