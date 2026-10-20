@@ -73,11 +73,12 @@ router.put("/", async (req, res) => {
              FROM user_settings WHERE user_id = ? LIMIT 1`,
             [req.user.userId]
         );
-        const merged = { ...toSettings(existing[0]), ...current };
-        // Only overwrite boolean values explicitly included in this request.
+        // Partial updates preserve every preference that was not sent.
+        const merged = { ...DEFAULT_SETTINGS, ...toSettings(existing[0]) };
+        if (body.theme !== undefined) merged.theme = body.theme;
+        if (body.language !== undefined) merged.language = body.language;
         for (const key of ["assignmentAlerts", "classReminders", "announcements", "offlineMode"]) {
             if (body[key] !== undefined) merged[key] = body[key];
-            else if (existing[0]) merged[key] = toSettings(existing[0])[key];
         }
 
         await db.execute(
