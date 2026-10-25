@@ -1,4 +1,12 @@
 
+console.log("Database configuration check:", {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    database: process.env.DB_NAME,
+    userConfigured: Boolean(process.env.DB_USER),
+    passwordConfigured: Boolean(process.env.DB_PASSWORD)
+});
+
 const mysql = require("mysql2/promise");
 require("dotenv").config();
 
