@@ -1,4 +1,4 @@
-window.API_BASE_URL = "http://localhost:5000";
+window.API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadUpcomingSubmission();
