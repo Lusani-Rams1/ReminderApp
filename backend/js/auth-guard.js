@@ -1,6 +1,6 @@
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const API_BASE_URL = "http://localhost:5000";
+    const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
     const token = localStorage.getItem("token");
 
     // No token means the user is not logged in.
