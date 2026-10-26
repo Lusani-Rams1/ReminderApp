@@ -1,7 +1,7 @@
 // Account-based settings with local storage as an immediate fallback.
 document.addEventListener("DOMContentLoaded", async function () {
     const SETTINGS_KEY = "campusSyncSettings";
-    const API_BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+    const API_BASE_URL = window.API_BASE_URL || "https://reminderapp-production-36c1.up.railway.app";
     const language = document.getElementById("language");
     const syncButton = document.querySelector(".sync-btn");
     const syncStatusText = document.getElementById("syncStatusText");
