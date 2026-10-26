@@ -1,6 +1,6 @@
 // Apply the cached theme immediately; refresh it from the signed-in account.
 (function () {
-    const API_BASE_URL = window.API_BASE_URL || "http://localhost:5000";
+    const API_BASE_URL = window.API_BASE_URL || "https://reminderapp-production-36c1.up.railway.app";
 
     function applyTheme(theme) {
         const isDark = theme === "dark";
