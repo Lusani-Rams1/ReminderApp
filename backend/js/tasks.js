@@ -31,8 +31,8 @@ async function addTask(event) {
     }
 
     // Use your deployed backend URL here when available.
-    // For local testing, use http://localhost:5000.
-    const API_BASE_URL = "http://localhost:5000";
+    // For local testing, use https://reminderapp-production-36c1.up.railway.app.
+    const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
 
     try {
         const response = await fetch(`${API_BASE_URL}/api/tasks`, {
@@ -123,7 +123,7 @@ async function addTask(event) {
         }
     }
 
-    const API_BASE_URL = "http://localhost:5000";
+    const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
 
     try {
         // First, save the assignment.
@@ -300,7 +300,7 @@ async function addTask(event) {
     };
 
     async function loadTasks() {
-    const API_BASE_URL = "http://localhost:5000";
+    const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
     const token = localStorage.getItem("token");
     const container = document.getElementById("taskContainer");
 
