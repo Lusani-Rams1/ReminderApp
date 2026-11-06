@@ -1,0 +1,24 @@
+$kind: http-request
+name: ""
+url: http://localhost:5000/api/tasks
+method: GET
+body:
+  type: json
+  content: "{\r
+
+    \  \"title\": \"Test ISO date handling\",\r
+
+    \  \"description\": \"Testing a full ISO timestamp\",\r
+
+    \  \"dueDate\": \"2026-10-20T14:30:00.000\",\r
+
+    \  \"priority\": \"high\",\r
+
+    \  \"status\": \"pending\"\r
+
+    }"
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoibHVzYW5pQGV4YW1wbGUuY29tIiwiaWF0IjoxNzkyMzIzNDc1LCJleHAiOjE3OTI5MjgyNzV9.t0lZBSmLqwqcRvBayZNPama_bqZHi93rRfJKphq_nvE
+order: 1000
