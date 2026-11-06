@@ -12,6 +12,7 @@ const categoryRoutes = require("./routes/categories");
 const reminderRoutes = require("./routes/reminders");
 const notificationRoutes = require("./routes/notifications");
 const settingsRoutes = require("./routes/settings");
+const adminRoutes = require("./routes/admin");
 const runReminderScheduler = require("./services/reminderScheduler");
 
 const app = express();
@@ -34,6 +35,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/reminders", reminderRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(PORT, () => {
     console.log(`CampusSync server running on http://localhost:${PORT}`);
