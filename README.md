@@ -1,3 +1,5 @@
+> **Firebase branch:** this branch connects the website directly to the Android app’s Firebase Authentication and Cloud Firestore project. Run `npm start` for the local website and see [FIREBASE_SETUP.md](FIREBASE_SETUP.md) for shared-login testing. The Express/MySQL and Railway instructions below describe the retained legacy backend; these website screens no longer use it. Appearance and notification preferences remain device-specific.
+
 # ReminderApp (CampusSync)
 
 ReminderApp is an academic productivity web app for students. It keeps assignments, deadlines, reminders, notes, GPA tracking, and your schedule in one place, with account-based settings that follow you across devices.

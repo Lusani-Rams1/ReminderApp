@@ -1,87 +1,45 @@
-// JS/gpa.js
-
-const gradeScale = [
-    { min: 75, grade: 'PD', points: 4.0 },
-    { min: 70, grade: 'P', points: 4.0 },
-    { min: 65, grade: 'F', points: 0.0 },
-    { min: 60, grade: 'FES', points: 0.0 },
-    { min: 55, grade: 'IC', points: 4.0 },
-    { min: 50, grade: 'EC', points: 4.0 }
-];
-
-function marksToGrade(marks) {
-    const m = parseFloat(marks);
-    if (isNaN(m)) return { grade: '-', points: null };
-    const found = gradeScale.find(g => m >= g.min);
-    return found ? found : { grade: '-', points: null };
-}
-
+const gradeScale = [{min:80,grade:'A',points:4},{min:70,grade:'B',points:3},{min:60,grade:'C',points:2},{min:50,grade:'D',points:1},{min:0,grade:'F',points:0}];
+function marksToGrade(value) { const mark = Number.parseFloat(value); return Number.isFinite(mark) ? gradeScale.find(grade => mark >= grade.min) || {grade:'-',points:null} : {grade:'-',points:null}; }
 const gpaTable = document.getElementById('gpaTable');
-const addRowBtn = document.getElementById('addRowBtn');
 const form = document.getElementById('gpa-form');
 const gpaResult = document.getElementById('gpaResult');
-const gpaValue = document.getElementById('gpaValue');
-
-function createRow() {
-    const row = document.createElement('div');
-    row.className = 'gpa-row';
-
-    row.innerHTML = `
-        <input type="text" class="course-input" placeholder="e.g. Math 101" required>
-        <input type="number" class="marks-input" placeholder="e.g. 85" min="0" max="100" required>
-        <div class="grade-display">-</div>
-        <input type="number" class="credit-input" placeholder="e.g. 3" min="0" required>
-        <button type="button" class="remove-row-btn" title="Remove course">&times;</button>
-    `;
-
-    const marksInput = row.querySelector('.marks-input');
-    const gradeDisplay = row.querySelector('.grade-display');
-    marksInput.addEventListener('input', () => {
-        gradeDisplay.textContent = marksToGrade(marksInput.value).grade;
-    });
-
-    row.querySelector('.remove-row-btn').addEventListener('click', () => row.remove());
-
-    gpaTable.appendChild(row);
+let loadedModules = [];
+let gpaDirty = false;
+function createRow(module) {
+  const row = document.createElement('div'); row.className = 'gpa-row'; row.dataset.id = module?.id || '';
+  row.innerHTML = '<input type="text" class="course-input" placeholder="e.g. Math 101" required><input type="number" class="marks-input" placeholder="e.g. 85" min="0" max="100" step="1" required><div class="grade-display">-</div><input type="number" class="credit-input" placeholder="e.g. 3" min="1" step="1" required><button type="button" class="remove-row-btn" title="Remove course">&times;</button>';
+  row.querySelector('.course-input').value = module?.moduleName || '';
+  row.querySelector('.marks-input').value = module?.mark ?? '';
+  row.querySelector('.credit-input').value = module?.credits ?? '';
+  const showGrade = () => { row.querySelector('.grade-display').textContent = marksToGrade(row.querySelector('.marks-input').value).grade; };
+  row.addEventListener('input', () => { gpaDirty = true; showGrade(); }); showGrade();
+  row.querySelector('.remove-row-btn').onclick = () => { gpaDirty = true; row.remove(); };
+  gpaTable.append(row);
 }
-
-// start with 3 rows
-for (let i = 0; i < 3; i++) createRow();
-
-addRowBtn.addEventListener('click', createRow);
-
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const rows = gpaTable.querySelectorAll('.gpa-row:not(.gpa-row-header)');
-    let totalPoints = 0;
-    let totalCredits = 0;
-    let hasValidRow = false;
-
-    rows.forEach(row => {
-        const marks = row.querySelector('.marks-input').value;
-        const credit = parseFloat(row.querySelector('.credit-input').value);
-        const { points } = marksToGrade(marks);
-
-        if (points !== null && !isNaN(credit) && credit > 0) {
-            totalPoints += points * credit;
-            totalCredits += credit;
-            hasValidRow = true;
-        }
-    });
-
-    if (!hasValidRow) {
-        alert('Please enter valid marks and credits for at least one course.');
-        return;
+function rows() { return [...gpaTable.querySelectorAll('.gpa-row:not(.gpa-row-header)')]; }
+function fillModules(records) { rows().forEach(row => row.remove()); if (records.length) records.forEach(createRow); else for(let i=0;i<3;i++) createRow(); }
+fillModules([]);
+document.getElementById('addRowBtn').onclick = () => { gpaDirty = true; createRow(); };
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  const button = form.querySelector('[type="submit"]'); button.disabled = true;
+  try {
+    const firebase = await window.CampusFirebase;
+    const values = rows().map(row => ({id:row.dataset.id, moduleName:row.querySelector('.course-input').value.trim(),mark:Number(row.querySelector('.marks-input').value),credits:Number(row.querySelector('.credit-input').value)}));
+    if (!values.length || values.some(value => !value.moduleName || !Number.isInteger(value.mark) || value.mark<0 || value.mark>100 || !Number.isInteger(value.credits) || value.credits<=0)) throw Error('Enter a course, whole-number mark (0–100), and credits for each row.');
+    // Only edit these records, preserving concurrent additions from the app.
+    for (const value of values) {
+      if (value.id) await firebase.updateItem('gpaModules', value.id, value);
+      else value.id = await firebase.createItem('gpaModules', value);
     }
-
-    const gpa = totalPoints / totalCredits;
-    gpaValue.textContent = gpa.toFixed(2);
-    gpaResult.style.display = 'block';
+    for (const old of loadedModules) if (!values.some(value => value.id === old.id)) await firebase.removeItem('gpaModules', old.id);
+    document.getElementById('gpaValue').textContent = (values.reduce((sum,value) => sum+value.credits*marksToGrade(value.mark).points,0)/values.reduce((sum,value) => sum+value.credits,0)).toFixed(2);
+    gpaResult.style.display = 'block'; gpaDirty = false; loadedModules = values; fillModules(values);
+  } catch (error) { alert(error.message); }
+  finally { button.disabled = false; }
 });
-
-form.addEventListener('reset', () => {
-    gpaTable.querySelectorAll('.gpa-row:not(.gpa-row-header)').forEach(row => row.remove());
-    gpaResult.style.display = 'none';
-    for (let i = 0; i < 3; i++) createRow();
-});
+form.addEventListener('reset', () => { gpaDirty = true; gpaResult.style.display = 'none'; fillModules([]); });
+(async () => {
+  try { const firebase = await window.CampusFirebase; await firebase.watchItems('gpaModules', records => { if (!gpaDirty) { loadedModules = records; fillModules(records); } }, error => console.error(firebase.friendlyError(error))); }
+  catch (error) { console.error(error); }
+})();

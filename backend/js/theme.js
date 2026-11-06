@@ -1,6 +1,6 @@
 // Apply the cached theme immediately; refresh it from the signed-in account.
 (function () {
-    const API_BASE_URL = window.API_BASE_URL || "https://reminderapp-production-36c1.up.railway.app";
+
 
     function applyTheme(theme) {
         const isDark = theme === "dark";
@@ -26,15 +26,6 @@
             });
         }
 
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        fetch(API_BASE_URL + "/api/settings", {
-            headers: { "Authorization": "Bearer " + token }
-        }).then(async response => {
-            const data = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(data.message || "Could not load account theme.");
-            if (data.settings?.theme) applyTheme(data.settings.theme);
-        }).catch(error => console.warn("Account theme unavailable; using cached theme.", error));
+        // Appearance is a device preference; account records use Firestore.
     });
 })();

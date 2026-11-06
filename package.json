@@ -4,7 +4,8 @@
   "description": "ReminderApp is a simple academic productivity web app for students. It helps you stay organised with assignments, deadlines, notes, GPA tracking, and calendar integration in one place.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test tests/*.test.mjs",
+    "start": "node tools/serve.cjs"
   },
   "repository": {
     "type": "git",

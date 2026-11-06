@@ -1,4 +1,4 @@
-window.API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
+
 
 document.addEventListener("DOMContentLoaded", () => {
     loadUpcomingSubmission();
@@ -14,33 +14,15 @@ async function loadUpcomingSubmission() {
 
     card.textContent = "Loading submissions...";
 
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        card.textContent = "Please log in to view submissions.";
-        return;
-    }
-
     try {
-        const response = await fetch(`${window.API_BASE_URL}/api/tasks`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(
-                errorData.message || `Request failed (${response.status})`
-            );
-        }
-
-        const data = await response.json();
-
-        if (!Array.isArray(data.tasks)) {
-            throw new Error("The API response did not contain a tasks array.");
-        }
-
+        const firebase = await window.CampusFirebase;
+        await firebase.watchItems('tasks', records => renderUpcoming(records), error => { card.textContent = firebase.friendlyError(error); });
+    } catch (error) { card.textContent = error.message; }
+}
+function renderUpcoming(records) {
+    const card = document.getElementById('upcoming-submissions');
+    try {
+        const data = {tasks: records.map(task => ({...task, due_date: task.dueDate ? task.dueDate + 'T23:59:59' : null, status: task.status.toLowerCase()}))};
         const tasks = data.tasks
             .filter(task => task.due_date && task.status !== "completed")
             .map(task => ({

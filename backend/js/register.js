@@ -34,23 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.textContent = 'Creating account...';
 
     try {
-      const res = await fetch('https://reminderapp-production-36c1.up.railway.app/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, studentNumber, email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        errorMessage.textContent = data.message || 'Something went wrong.';
-        errorMessage.style.display = 'block';
-        return;
-      }
-
-      // Save session immediately so they're logged in after registering
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      const firebase = await window.CampusFirebase;
+      await firebase.register(fullName, studentNumber, email, password);
 
       successMessage.style.display = 'block';
       setTimeout(() => {
@@ -58,7 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 1200);
     } catch (err) {
       console.error(err);
-      errorMessage.textContent = 'Unable to reach the server. Please try again.';
+      const firebase = await window.CampusFirebase.catch(() => null);
+      errorMessage.textContent = firebase ? firebase.friendlyError(err) : 'Unable to load Firebase. Check your internet connection.';
       errorMessage.style.display = 'block';
     } finally {
       submitBtn.disabled = false;

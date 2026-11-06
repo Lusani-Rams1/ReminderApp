@@ -18,28 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.textContent = 'Signing in...';
 
     try {
-        const res = await fetch('https://reminderapp-production-36c1.up.railway.app/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        errorMessage.textContent = data.message || 'Invalid email or password.';
-        errorMessage.style.display = 'block';
-        return;
-      }
-
-      // Save session
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      const firebase = await window.CampusFirebase;
+      await firebase.login(email, password);
 
       window.location.href = 'dashboard.html';
     } catch (err) {
       console.error(err);
-      errorMessage.textContent = 'Unable to reach the server. Please try again.';
+      const firebase = await window.CampusFirebase.catch(() => null);
+      errorMessage.textContent = firebase ? firebase.friendlyError(err) : 'Unable to load Firebase. Check your internet connection.';
       errorMessage.style.display = 'block';
     } finally {
       submitBtn.disabled = false;
@@ -48,6 +34,15 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-function googleLogin() {
-  alert('Google login is not set up yet.');
+async function googleLogin() {
+  try {
+    const firebase = await window.CampusFirebase;
+    await firebase.googleLogin();
+    window.location.href = 'dashboard.html';
+  } catch (error) {
+    const firebase = await window.CampusFirebase.catch(() => null);
+    const message = document.getElementById('errorMessage');
+    message.textContent = firebase ? firebase.friendlyError(error) : 'Unable to load Firebase.';
+    message.style.display = 'block';
+  }
 }

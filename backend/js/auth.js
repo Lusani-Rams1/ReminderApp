@@ -1,18 +1,11 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
   const authActions = document.querySelectorAll('[data-auth-actions]');
   const scheduleAction = document.getElementById('scheduleAction');
 
-  // Login/register store the session under "token" and "user".
-  // The old script checked "campusSyncCurrentUser", so it incorrectly
-  // displayed Login/Get Started even after a successful API login.
-  let currentUser = null;
-  try {
-    currentUser = JSON.parse(localStorage.getItem('user') || 'null');
-  } catch (error) {
-    currentUser = null;
-  }
-
-  const isLoggedIn = Boolean(localStorage.getItem('token'));
+  let firebase;
+  let isLoggedIn = false;
+  try { firebase = await window.CampusFirebase; isLoggedIn = Boolean(await firebase.currentUser()); }
+  catch (error) { console.error('Could not load Firebase sign-in.', error); }
 
   authActions.forEach(function (actions) {
     if (isLoggedIn) {
@@ -28,7 +21,9 @@ document.addEventListener('DOMContentLoaded', function () {
         '<button type="button" class="btn btn-outline logout-btn">Log out</button>';
 
       const logoutButton = actions.querySelector('.logout-btn');
-      logoutButton.addEventListener('click', function () {
+      logoutButton.addEventListener('click', async function () {
+        try { await firebase.logout(); }
+        catch (error) { alert('Could not sign out. Please try again.'); return; }
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         localStorage.removeItem('campusSyncCurrentUser');

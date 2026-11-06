@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="en">
 <head>
+    <script src="backend/js/firebase-bootstrap.js"></script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="A simple, local-only notes editor: write, search, autosave, and export as .txt." />
+    <meta name="description" content="Notes shared with your CampusSync app: write, search, save, and export as .txt." />
     <link rel="stylesheet" href="CSS/notes.css" />
     <title>Notes</title>
 
@@ -39,7 +40,7 @@
             <h1>Notes</h1>
             <div class="toolbar" role="toolbar" aria-label="Editor tools">
                 <button id="newBtn" type="button" title="New note">New</button>
-                <button id="saveBtn" type="button" title="Save to browser storage">Save</button>
+                <button id="saveBtn" type="button" title="Save to your account">Save</button>
                 <button id="exportBtn" type="button" title="Export as .txt">Export</button>
 
                 <label class="tool small" for="autosave" title="Autosave">
@@ -65,7 +66,7 @@
                         <span id="chars" class="meta-item">Chars: 0</span>
                         <span id="lastSaved" class="meta-item" aria-live="polite">Not saved</span>
                     </div>
-                    <div class="small">Local only &middot; no server</div>
+                    <div class="small">Shared with your CampusSync account</div>
                 </footer>
             </section>
 
@@ -130,6 +131,7 @@
             </div>
         </footer>
 
+        <script src="backend/js/notes.js"></script>
         <script src="backend/js/theme.js"></script>
         <script src="backend/js/auth-guard.js"></script>
 
