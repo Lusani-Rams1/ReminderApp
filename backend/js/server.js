@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
@@ -9,8 +8,10 @@ require("dotenv").config({
 
 const authRoutes = require("./routes/auth");
 const taskRoutes = require("./routes/tasks");
+const categoryRoutes = require("./routes/categories");
 const reminderRoutes = require("./routes/reminders");
 const notificationRoutes = require("./routes/notifications");
+const settingsRoutes = require("./routes/settings");
 const runReminderScheduler = require("./services/reminderScheduler");
 
 const app = express();
@@ -29,8 +30,10 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/categories", categoryRoutes);
 app.use("/api/reminders", reminderRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/settings", settingsRoutes);
 
 app.listen(PORT, () => {
     console.log(`CampusSync server running on http://localhost:${PORT}`);

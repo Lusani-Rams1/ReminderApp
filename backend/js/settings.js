@@ -1,115 +1,132 @@
-    /* DARK MODE */
+// Account-based settings with local storage as an immediate fallback.
+document.addEventListener("DOMContentLoaded", async function () {
+    const SETTINGS_KEY = "campusSyncSettings";
+    const API_BASE_URL = window.API_BASE_URL || "https://reminderapp-production-36c1.up.railway.app";
+    const language = document.getElementById("language");
+    const syncButton = document.querySelector(".sync-btn");
+    const syncStatusText = document.getElementById("syncStatusText");
+    const preferenceInputs = Array.from(document.querySelectorAll("[data-preference]"));
+    const darkMode = document.getElementById("darkMode");
 
-    const darkMode =
-        document.getElementById("darkMode");
-
-
-    darkMode.addEventListener(
-        "change",
-        function() {
-
-            document.body.classList.toggle(
-                "dark",
-                this.checked
-            );
-
-
-            localStorage.setItem(
-                "campusSyncDarkMode",
-                this.checked
-            );
-
-        }
-    );
-
-
-    /* LOAD SAVED DARK MODE */
-
-    const savedDarkMode =
-        localStorage.getItem(
-            "campusSyncDarkMode"
-        );
-
-
-    if (savedDarkMode === "true") {
-
-        darkMode.checked = true;
-
-        document.body.classList.add("dark");
-
+    function readLocalSettings() {
+        try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || "{}"); }
+        catch (error) { return {}; }
     }
 
-    /* LANGUAGE */
+    function collectSettings() {
+        return {
+            theme: darkMode?.checked ? "dark" : "light",
+            language: language?.value || "english",
+            assignmentAlerts: document.getElementById("assignmentAlerts")?.checked ?? true,
+            classReminders: document.getElementById("classReminders")?.checked ?? true,
+            announcements: document.getElementById("announcements")?.checked ?? true,
+            offlineMode: document.getElementById("offlineMode")?.checked ?? true
+        };
+    }
 
-    const language =
-        document.getElementById("language");
+    function applySettings(settings) {
+        if (settings.theme) {
+            const isDark = settings.theme === "dark";
+            if (darkMode) darkMode.checked = isDark;
+            document.documentElement.classList.toggle("dark", isDark);
+            document.body.classList.toggle("dark", isDark);
+            localStorage.setItem("theme", settings.theme);
+            localStorage.setItem("campusSyncDarkMode", String(isDark));
+        }
+        if (language && settings.language) {
+            language.value = settings.language;
+            localStorage.setItem("campusSyncLanguage", settings.language);
+        }
+        preferenceInputs.forEach(input => {
+            const value = settings[input.dataset.preference];
+            if (typeof value === "boolean") input.checked = value;
+        });
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...readLocalSettings(), ...settings }));
+    }
 
+    async function requestSettings(method, settings) {
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("Please log in to sync settings to your account.");
+        const response = await fetch(API_BASE_URL + "/api/settings", {
+            method,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token
+            },
+            ...(settings ? { body: JSON.stringify(settings) } : {})
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.message || "Account settings request failed.");
+        return data;
+    }
 
-    language.addEventListener(
-        "change",
-        function() {
+    // Show the saved device copy immediately, then load the account copy.
+    applySettings({
+        theme: localStorage.getItem("theme") ||
+            (localStorage.getItem("campusSyncDarkMode") === "true" ? "dark" : "light"),
+        language: localStorage.getItem("campusSyncLanguage") || "english",
+        ...readLocalSettings()
+    });
 
-            localStorage.setItem(
-                "campusSyncLanguage",
-                this.value
-            );
+    if (localStorage.getItem("token")) {
+        try {
+            const data = await requestSettings("GET");
+            applySettings(data.settings || {});
+            if (syncStatusText) syncStatusText.textContent = "Settings loaded from your account.";
+        } catch (error) {
+            console.warn("Account settings unavailable; using device copy.", error);
+            if (syncStatusText) syncStatusText.textContent = "Using device settings; account sync unavailable.";
+        }
+    } else if (syncStatusText) {
+        syncStatusText.textContent = "Saved on this device. Log in to sync across devices.";
+    }
 
+    async function persistCurrentSettings() {
+        const settings = collectSettings();
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+        applySettings(settings);
+        if (!localStorage.getItem("token")) {
+            if (syncStatusText) syncStatusText.textContent = "Saved on this device. Log in to sync across devices.";
+            return;
+        }
+        try {
+            const data = await requestSettings("PUT", settings);
+            applySettings(data.settings || settings);
+            if (syncStatusText) syncStatusText.textContent = "Settings saved to your account.";
+        } catch (error) {
+            console.error("Settings account save failed:", error);
+            if (syncStatusText) syncStatusText.textContent = "Account sync failed; device copy saved.";
+        }
+    }
 
-            if (this.value === "zulu") {
+    preferenceInputs.forEach(input => input.addEventListener("change", persistCurrentSettings));
+    if (language) language.addEventListener("change", async function () {
+        await persistCurrentSettings();
+        if (language.value === "zulu") {
+            alert("isiZulu preference saved. Full page translation is not available yet.");
+        }
+    });
+    if (darkMode) darkMode.addEventListener("change", persistCurrentSettings);
 
-                alert(
-                    "isiZulu language support selected."
-                );
-
+    if (syncButton) {
+        syncButton.removeAttribute("onclick");
+        syncButton.addEventListener("click", async function () {
+            syncButton.disabled = true;
+            syncButton.textContent = "Syncing...";
+            try {
+                const data = await requestSettings("PUT", collectSettings());
+                applySettings(data.settings || collectSettings());
+                if (syncStatusText) syncStatusText.textContent = "Settings synced with your account.";
+                syncButton.textContent = "Synced ✓";
+            } catch (error) {
+                if (syncStatusText) syncStatusText.textContent = error.message;
+                syncButton.textContent = "Sync failed";
+            } finally {
+                window.setTimeout(() => {
+                    syncButton.textContent = "Sync Now";
+                    syncButton.disabled = false;
+                }, 1600);
             }
-
-        }
-    );
-
-    /* LOAD LANGUAGE */
-
-    const savedLanguage =
-        localStorage.getItem(
-            "campusSyncLanguage"
-        );
-
-
-    if (savedLanguage) {
-
-        language.value = savedLanguage;
-
+        });
     }
-
-    /* SYNC */
-
-    function syncData() {
-
-        const button =
-            document.querySelector(".sync-btn");
-
-
-        button.textContent =
-            "Syncing...";
-
-
-        button.disabled = true;
-
-
-        setTimeout(function() {
-
-            button.textContent =
-                "Synced ✓";
-
-
-            setTimeout(function() {
-
-                button.textContent =
-                    "Sync Now";
-
-                button.disabled = false;
-
-            }, 1500);
-
-        }, 1500);
-
-    }
+});

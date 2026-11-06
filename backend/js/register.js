@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     submitBtn.textContent = 'Creating account...';
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/register', {
+      const res = await fetch('https://reminderapp-production-36c1.up.railway.app/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fullName, studentNumber, email, password }),

@@ -1,4 +1,3 @@
-
 const jwt = require("jsonwebtoken");
 
 function requireAuth(req, res, next) {
@@ -37,7 +36,8 @@ function requireAuth(req, res, next) {
 
         req.user = {
             userId: decoded.userId,
-            email: decoded.email
+            email: decoded.email,
+            role: decoded.role || "student"
         };
 
         next();
