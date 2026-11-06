@@ -56,15 +56,15 @@ router.post("/register", async (req, res) => {
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-        // The unique indexes are the final protection against simultaneous signups.
+        // Public registration always creates a student account.
         const [result] = await db.execute(
-            `INSERT INTO users (full_name, student_number, email, password_hash)
-             VALUES (?, ?, ?, ?)`,
+            `INSERT INTO users (full_name, student_number, email, password_hash, role)
+             VALUES (?, ?, ?, ?, 'student')`,
             [cleanFullName, cleanStudentNumber, cleanEmail, passwordHash]
         );
 
         const token = jwt.sign(
-            { userId: result.insertId, email: cleanEmail },
+            { userId: result.insertId, email: cleanEmail, role: "student" },
             JWT_SECRET,
             { expiresIn: "7d" }
         );
@@ -76,7 +76,8 @@ router.post("/register", async (req, res) => {
                 userId: result.insertId,
                 fullName: cleanFullName,
                 studentNumber: cleanStudentNumber,
-                email: cleanEmail
+                email: cleanEmail,
+                role: "student"
             }
         });
     } catch (error) {
@@ -109,7 +110,7 @@ router.post("/login", async (req, res) => {
 
         const cleanEmail = email.trim();
         const [users] = await db.execute(
-            "SELECT * FROM users WHERE email = ?",
+            "SELECT user_id, full_name, student_number, email, password_hash, role FROM users WHERE email = ?",
             [cleanEmail]
         );
 
@@ -128,8 +129,15 @@ router.post("/login", async (req, res) => {
             });
         }
 
+        const role = user.role || "student";
+        if (!["student", "admin"].includes(role)) {
+            return res.status(403).json({
+                message: "This account has an unrecognised role. Please contact support."
+            });
+        }
+
         const token = jwt.sign(
-            { userId: user.user_id, email: user.email },
+            { userId: user.user_id, email: user.email, role },
             JWT_SECRET,
             { expiresIn: "7d" }
         );
@@ -141,7 +149,8 @@ router.post("/login", async (req, res) => {
                 userId: user.user_id,
                 fullName: user.full_name,
                 studentNumber: user.student_number,
-                email: user.email
+                email: user.email,
+                role
             }
         });
     } catch (error) {
@@ -157,7 +166,7 @@ router.post("/login", async (req, res) => {
 router.get("/me", requireAuth, async (req, res) => {
     try {
         const [users] = await db.execute(
-            `SELECT user_id, full_name, student_number, email, created_at
+            `SELECT user_id, full_name, student_number, email, role, created_at
              FROM users WHERE user_id = ?`,
             [req.user.userId]
         );
@@ -173,6 +182,7 @@ router.get("/me", requireAuth, async (req, res) => {
                 fullName: user.full_name,
                 studentNumber: user.student_number,
                 email: user.email,
+                role: user.role || "student",
                 createdAt: user.created_at
             }
         });
