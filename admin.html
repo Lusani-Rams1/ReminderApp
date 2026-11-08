@@ -63,6 +63,63 @@
         </div>
       </section>
 
+      
+<section id="students" class="section-block">
+    <div class="section-heading">
+        <div>
+            <h2>Student management</h2>
+            <p class="muted">
+                Search and view registered CampusSync students.
+            </p>
+        </div>
+
+        <span id="studentCount" class="muted small">
+            Loading students...
+        </span>
+    </div>
+
+    <article class="panel">
+        <div class="student-toolbar">
+            <input
+                type="search"
+                id="studentSearch"
+                placeholder="Search by name, student number or email..."
+                aria-label="Search students"
+            >
+
+            <button
+                id="studentSearchBtn"
+                class="refresh-btn"
+                type="button"
+            >
+                Search
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="student-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Student number</th>
+                        <th>Email address</th>
+                        <th>Date registered</th>
+                    </tr>
+                </thead>
+
+                <tbody id="studentsTableBody">
+                    <tr>
+                        <td colspan="4">
+                            Loading student accounts...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>
+
+
       <section id="system-health" class="section-block">
         <div class="section-heading"><div><h2>System health</h2><p class="muted">Connection checks for the application services.</p></div></div>
         <article class="panel health-panel"><div class="health-item"><span class="health-dot" id="apiDot"></span><div><strong>Backend API</strong><small id="apiStatus">Checking…</small></div></div><div class="health-item"><span class="health-dot" id="dbDot"></span><div><strong>MySQL database</strong><small id="dbStatus">Checking…</small></div></div><span id="healthChecked" class="muted small"></span></article>

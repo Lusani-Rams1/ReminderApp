@@ -4,3 +4,68 @@
 @media(max-width:1000px){.sidebar{width:205px}.main-content{margin-left:205px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.sidebar{position:static;width:auto;padding:15px 18px}.brand{padding:0 5px 14px}.side-label,.sidebar-bottom{display:none}.side-nav{display:flex;overflow-x:auto}.side-nav a{white-space:nowrap;padding:9px 11px}.main-content{margin:0;padding:25px 16px}.topbar{align-items:flex-start;flex-direction:column;margin-bottom:27px}.top-actions{width:100%;justify-content:space-between}.stats-grid{grid-template-columns:1fr 1fr;gap:10px}.stat-card{padding:14px}.stat-card>strong{font-size:24px}.charts-grid{grid-template-columns:1fr}.chart-wrap{height:230px}.section-heading{align-items:flex-start;flex-direction:column}.health-panel{gap:20px}.role-pill{display:none}}
 @media(max-width:380px){.stats-grid{grid-template-columns:1fr}.topbar h1{font-size:25px}}
+
+/* ================================
+   STUDENT MANAGEMENT
+================================ */
+
+.student-toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.student-toolbar input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+}
+
+.student-toolbar input:focus {
+    border-color: var(--accent);
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+}
+
+.student-table th,
+.student-table td {
+    padding: 15px 12px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+}
+
+.student-table th {
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+.student-table td {
+    color: var(--text);
+}
+
+.student-table tbody tr:hover {
+    background: rgba(120, 120, 150, .05);
+}
+
+@media (max-width: 600px) {
+    .student-toolbar {
+        flex-direction: column;
+    }
+}

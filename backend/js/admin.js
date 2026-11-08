@@ -114,13 +114,109 @@
     }
   }
 
+  
+  // Load and display registered students
+  async function loadStudents(search = "") {
+    const tableBody = document.getElementById("studentsTableBody");
+    const countElement = document.getElementById("studentCount");
+
+    if (!tableBody) return;
+
+    tableBody.replaceChildren();
+
+    const loadingRow = document.createElement("tr");
+    const loadingCell = document.createElement("td");
+
+    loadingCell.colSpan = 4;
+    loadingCell.textContent = "Loading student accounts...";
+    loadingRow.appendChild(loadingCell);
+    tableBody.appendChild(loadingRow);
+
+    try {
+      const data = await getJson(
+        `/api/admin/students?search=${encodeURIComponent(search)}`
+      );
+
+      const students = Array.isArray(data.students)
+        ? data.students
+        : [];
+
+      if (countElement) {
+        countElement.textContent =
+          `${data.total ?? students.length} students`;
+      }
+
+      tableBody.replaceChildren();
+
+      if (students.length === 0) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+
+        cell.colSpan = 4;
+        cell.textContent = "No students found.";
+
+        row.appendChild(cell);
+        tableBody.appendChild(row);
+        return;
+      }
+
+      students.forEach(student => {
+        const row = document.createElement("tr");
+
+        const values = [
+          student.fullName || "Not provided",
+          student.studentNumber || "Not provided",
+          student.email || "Not provided",
+          student.createdAt
+            ? new Date(student.createdAt).toLocaleDateString()
+            : "Unknown"
+        ];
+
+        values.forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+
+        tableBody.appendChild(row);
+      });
+
+    } catch (error) {
+      console.error("Student management error:", error);
+
+      if (countElement) {
+        countElement.textContent = "Unable to load students";
+      }
+
+      tableBody.replaceChildren();
+
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+
+      cell.colSpan = 4;
+      cell.textContent =
+        error.message || "Unable to load student accounts.";
+
+      row.appendChild(cell);
+      tableBody.appendChild(row);
+    }
+  }
+
   async function refreshDashboard() {
     const button = document.getElementById("refreshBtn");
     button.disabled = true;
     button.textContent = "Refreshing…";
     try {
-      await Promise.all([loadOverview(), loadTrends(), loadHealth()]);
-      setText("lastUpdated", "Updated " + new Date().toLocaleTimeString());
+    const studentSearch = document.getElementById("studentSearch");
+
+    await Promise.all([
+      loadOverview(),
+      loadTrends(),
+      loadHealth(),
+      loadStudents(studentSearch ? studentSearch.value.trim() : "")
+    ]);      
+
+    setText("lastUpdated", "Updated " + new Date().toLocaleTimeString());
     } catch (error) {
       console.error("Admin dashboard:", error);
       showError(error.message || "Unable to load dashboard data.");
@@ -131,6 +227,20 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    const studentSearch = document.getElementById("studentSearch");
+    const studentSearchBtn = document.getElementById("studentSearchBtn");
+
+    if (studentSearchBtn && studentSearch) {
+      studentSearchBtn.addEventListener("click", () => {
+        loadStudents(studentSearch.value.trim());
+      });
+
+      studentSearch.addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+          loadStudents(studentSearch.value.trim());
+        }
+      });
+    }
     document.getElementById("refreshBtn").addEventListener("click", refreshDashboard);
     document.getElementById("logoutBtn").addEventListener("click", () => {
       localStorage.removeItem("token");

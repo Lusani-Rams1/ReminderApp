@@ -111,4 +111,42 @@ router.get("/health", async (req, res) => {
     }
 });
 
+// GET /api/admin/students?search=keyword
+router.get("/students", async (req, res) => {
+    try {
+        const search = String(req.query.search || "").trim();
+
+        const [students] = await db.execute(
+            `SELECT
+                user_id AS userId,
+                full_name AS fullName,
+                student_number AS studentNumber,
+                email,
+                created_at AS createdAt
+             FROM users
+             WHERE role = 'student'
+               AND (
+                    full_name LIKE ?
+                    OR student_number LIKE ?
+                    OR email LIKE ?
+               )
+             ORDER BY created_at DESC
+             LIMIT 100`,
+            [`%${search}%`, `%${search}%`, `%${search}%`]
+        );
+
+        res.json({
+            total: students.length,
+            students
+        });
+
+    } catch (error) {
+        console.error("ADMIN STUDENT LIST ERROR:", error);
+
+        res.status(500).json({
+            message: "Unable to retrieve student accounts."
+        });
+    }
+});
+
 module.exports = router;
