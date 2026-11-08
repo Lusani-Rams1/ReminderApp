@@ -17,9 +17,11 @@
       <a class="brand" href="admin.html"><span class="brand-mark">C</span><span>CampusSync</span></a>
       <div class="side-label">ADMINISTRATION</div>
       <nav class="side-nav" aria-label="Administrator navigation">
-        <a class="active" href="#overview"><span>▦</span> Overview</a>
-        <a href="#analytics"><span>◷</span> Analytics</a>
-        <a href="#system-health"><span>♡</span> System health</a>
+        <a class="active" href="#overview">Overview</a>
+        <a href="#analytics">Analytics</a>
+        <a href="#user-activity">User activity</a>
+        <a href="#students">Student management</a>
+        <a href="#system-health">System health</a>
       </nav>
       <div class="sidebar-bottom">
         <div class="admin-profile"><div class="avatar">A</div><div><strong id="adminName">Administrator</strong><small>System monitor</small></div></div>
@@ -77,6 +79,92 @@
             Loading students...
         </span>
     </div>
+<!-- USER ACTIVITY -->
+<section id="user-activity" class="section-block">
+
+    <div class="section-heading">
+        <div>
+            <h2>User activity</h2>
+            <p class="muted">
+                Monitor student engagement and recent platform activity.
+            </p>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+
+        <article class="stat-card">
+            <div class="stat-top">
+                <span>Active students</span>
+            </div>
+            <strong id="activeStudents">—</strong>
+            <small>Students active in the last 30 days</small>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-top">
+                <span>Tasks created</span>
+            </div>
+            <strong id="activityTasksCreated">—</strong>
+            <small>Total student tasks</small>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-top">
+                <span>Reminders created</span>
+            </div>
+            <strong id="activityRemindersCreated">—</strong>
+            <small>Total student reminders</small>
+        </article>
+
+        <article class="stat-card">
+            <div class="stat-top">
+                <span>Notifications received</span>
+            </div>
+            <strong id="activityNotifications">—</strong>
+            <small>Total notifications</small>
+        </article>
+
+    </div>
+
+    <article class="panel">
+
+        <div class="panel-heading">
+            <div>
+                <h3>Recent activity</h3>
+                <p class="muted">
+                    Latest recorded student actions.
+                </p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="student-table">
+
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Activity</th>
+                        <th>Details</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody id="activityTableBody">
+                    <tr>
+                        <td colspan="4">
+                            Activity will appear here.
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+    </article>
+
+</section>
+<!-- END USER ACTIVITY -->
 
     <article class="panel">
         <div class="student-toolbar">

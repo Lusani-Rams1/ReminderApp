@@ -149,4 +149,105 @@ router.get("/students", async (req, res) => {
     }
 });
 
+// GET /api/admin/activity
+// Returns student engagement statistics and recent activity.
+router.get("/activity", async (req, res) => {
+    try {
+        // Calculate student activity statistics.
+        const [[stats]] = await db.execute(
+            `SELECT
+                (
+                    SELECT COUNT(DISTINCT activity.user_id)
+                    FROM (
+                        SELECT user_id, created_at FROM tasks
+                        UNION ALL
+                        SELECT user_id, created_at FROM reminders
+                        UNION ALL
+                        SELECT user_id, created_at FROM notifications
+                    ) activity
+                    INNER JOIN users u
+                        ON u.user_id = activity.user_id
+                    WHERE u.role = 'student'
+                      AND activity.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                ) AS active_students,
+
+                (
+                    SELECT COUNT(*)
+                    FROM tasks t
+                    INNER JOIN users u ON u.user_id = t.user_id
+                    WHERE u.role = 'student'
+                ) AS tasks_created,
+
+                (
+                    SELECT COUNT(*)
+                    FROM reminders r
+                    INNER JOIN users u ON u.user_id = r.user_id
+                    WHERE u.role = 'student'
+                ) AS reminders_created,
+
+                (
+                    SELECT COUNT(*)
+                    FROM notifications n
+                    INNER JOIN users u ON u.user_id = n.user_id
+                    WHERE u.role = 'student'
+                ) AS notifications_received`
+        );
+
+        // Retrieve the 50 most recent recorded activities.
+        const [activities] = await db.execute(
+            `SELECT *
+             FROM (
+                SELECT
+                    u.full_name AS student,
+                    'Task created' AS activityType,
+                    t.title AS details,
+                    t.created_at AS activityDate
+                FROM tasks t
+                INNER JOIN users u ON u.user_id = t.user_id
+                WHERE u.role = 'student'
+
+                UNION ALL
+
+                SELECT
+                    u.full_name AS student,
+                    'Reminder created' AS activityType,
+                    r.message AS details,
+                    r.created_at AS activityDate
+                FROM reminders r
+                INNER JOIN users u ON u.user_id = r.user_id
+                WHERE u.role = 'student'
+
+                UNION ALL
+
+                SELECT
+                    u.full_name AS student,
+                    'Notification received' AS activityType,
+                    n.title AS details,
+                    n.created_at AS activityDate
+                FROM notifications n
+                INNER JOIN users u ON u.user_id = n.user_id
+                WHERE u.role = 'student'
+             ) AS recent_activity
+             ORDER BY activityDate DESC
+             LIMIT 50`
+        );
+
+        res.json({
+            stats: {
+                activeStudents: Number(stats.active_students || 0),
+                tasksCreated: Number(stats.tasks_created || 0),
+                remindersCreated: Number(stats.reminders_created || 0),
+                notificationsReceived: Number(stats.notifications_received || 0)
+            },
+            activities
+        });
+
+    } catch (error) {
+        console.error("ADMIN ACTIVITY ERROR:", error);
+
+        res.status(500).json({
+            message: "Unable to load student activity."
+        });
+    }
+});
 module.exports = router;
