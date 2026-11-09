@@ -1,6 +1,6 @@
 
 (() => {
-const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
+  const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
   const charts = {};
 
   const number = value => Number(value || 0).toLocaleString();
