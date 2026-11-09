@@ -31,6 +31,7 @@
         <a href="#user-activity">User activity</a>
         <a href="#students">Student management</a>
         <a href="#system-health">System health</a>
+        <a href="#reports">Reports</a>
       </nav>
 
       <div class="sidebar-bottom">
@@ -289,8 +290,71 @@
         </article>
       </section>
 
-      <footer class="page-footer">CampusSync administration · Monitoring and insights</footer>
-    </main>
+      <footer class="page-footer">
+        <!-- DOWNLOADABLE REPORTS -->
+      <section id="reports" class="section-block">
+        <div class="section-heading">
+          <div>
+            <h2>Downloadable Reports</h2>
+            <p class="muted">
+              Generate and download CampusSync administrative reports.
+            </p>
+          </div>
+        </div>
+
+        <div class="reports-grid">
+
+          <article class="panel report-card">
+            <h3>Student Registration Report</h3>
+            <p class="muted">
+              View registered students, registration dates,
+              and account statuses.
+            </p>
+            <button
+              type="button"
+              class="report-download-btn"
+              data-report="students">
+              Download CSV
+            </button>
+          </article>
+
+          <article class="panel report-card">
+            <h3>Task Activity Report</h3>
+            <p class="muted">
+              Export student tasks, priorities,
+              completion statuses, and due dates.
+            </p>
+            <button
+              type="button"
+              class="report-download-btn"
+              data-report="tasks">
+              Download CSV
+            </button>
+          </article>
+
+          <article class="panel report-card">
+            <h3>Reminder Activity Report</h3>
+            <p class="muted">
+              Export scheduled reminders,
+              related tasks, and reminder statuses.
+            </p>
+            <button
+              type="button"
+              class="report-download-btn"
+              data-report="reminders">
+              Download CSV
+            </button>
+          </article>
+
+        </div>
+      </section>
+
+</section>
+
+<footer class="page-footer">
+  CampusSync administration &middot; Monitoring and insights
+</footer>  
+  </main>
   </div>
 
   <div id="dashboardError" class="toast" role="alert" aria-live="polite"></div>

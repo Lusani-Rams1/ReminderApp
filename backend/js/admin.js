@@ -543,6 +543,70 @@
     }
   }
 
+  // Download administrator CSV reports
+async function downloadReport(reportType, button) {
+  const allowedReports = ["students", "tasks", "reminders"];
+
+  if (!allowedReports.includes(reportType)) {
+    showError("Invalid report type.");
+    return;
+  }
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    showError("Please log in as an administrator.");
+    return;
+  }
+
+  const originalText = button.textContent;
+
+  button.disabled = true;
+  button.textContent = "Downloading...";
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/api/admin/reports/${reportType}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        cache: "no-store"
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error("Administrator access required.");
+      }
+
+      throw new Error(`Report download failed (${response.status}).`);
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `campussync-${reportType}-report.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+
+  } catch (error) {
+    console.error("REPORT DOWNLOAD ERROR:", error);
+    showError(error.message || "Unable to download report.");
+
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
   // Set up dashboard event listeners
   document.addEventListener("DOMContentLoaded", () => {
     const studentSearch = document.getElementById("studentSearch");
@@ -555,6 +619,13 @@
         console.error("Automatic health check failed:", error);
       });
     }, 30000);
+    // Report download buttons
+    document.querySelectorAll(".report-download-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        const reportType = button.dataset.report;
+        downloadReport(reportType, button);
+      });
+    });
 
     if (studentSearchBtn && studentSearch) {
       studentSearchBtn.addEventListener("click", () => {

@@ -327,4 +327,240 @@ router.get("/activity", async (req, res) => {
     }
 });
 
+// GET /api/admin/reports/students
+// Download student registration report as CSV.
+router.get("/reports/students", async (req, res) => {
+    try {
+        const [students] = await db.execute(`
+            SELECT
+                full_name,
+                student_number,
+                email,
+                created_at,
+                account_status
+            FROM users
+            WHERE role = 'student'
+            ORDER BY created_at DESC
+        `);
+
+        // Prevent spreadsheet formula injection and escape CSV values.
+        const csvValue = (value) => {
+            if (value === null || value === undefined) {
+                return '""';
+            }
+
+            let text = String(value);
+
+            if (/^[\s]*[=+\-@\t\r]/.test(text)) {
+                text = "'" + text;
+            }
+
+            return `"${text.replace(/"/g, '""')}"`;
+        };
+
+        const headers = [
+            "Full Name",
+            "Student Number",
+            "Email",
+            "Registration Date",
+            "Account Status"
+        ];
+
+        const rows = students.map(student => [
+            student.full_name,
+            student.student_number,
+            student.email,
+            student.created_at instanceof Date
+                ? student.created_at.toISOString()
+                : student.created_at,
+            student.account_status
+        ]);
+
+        const csv = [
+            headers.map(csvValue).join(","),
+            ...rows.map(row => row.map(csvValue).join(","))
+        ].join("\r\n");
+
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
+        res.setHeader(
+            "Content-Disposition",
+            'attachment; filename="campussync-student-report.csv"'
+        );
+        res.setHeader("Cache-Control", "no-store");
+
+        return res.send("\uFEFF" + csv);
+
+    } catch (error) {
+        console.error("STUDENT REPORT ERROR:", error);
+
+        return res.status(500).json({
+            message: "Unable to generate student registration report."
+        });
+    }
+});
+
+// GET /api/admin/reports/tasks
+// Download task activity report as CSV.
+router.get("/reports/tasks", async (req, res) => {
+    try {
+        const [tasks] = await db.execute(`
+            SELECT
+                u.full_name AS student,
+                u.student_number,
+                t.title,
+                t.description,
+                t.priority,
+                t.status,
+                t.due_date,
+                t.created_at
+            FROM tasks t
+            INNER JOIN users u ON u.user_id = t.user_id
+            WHERE u.role = 'student'
+            ORDER BY t.created_at DESC
+        `);
+
+        // Escape CSV values and prevent spreadsheet formula injection.
+        const csvValue = (value) => {
+            if (value === null || value === undefined) {
+                return '""';
+            }
+
+            let text = value instanceof Date
+                ? value.toISOString()
+                : String(value);
+
+            if (/^[\s]*[=+\-@\t\r]/.test(text)) {
+                text = "'" + text;
+            }
+
+            return `"${text.replace(/"/g, '""')}"`;
+        };
+
+        const headers = [
+            "Student",
+            "Student Number",
+            "Task Title",
+            "Description",
+            "Priority",
+            "Status",
+            "Due Date",
+            "Created At"
+        ];
+
+        const rows = tasks.map(task => [
+            task.student,
+            task.student_number,
+            task.title,
+            task.description,
+            task.priority,
+            task.status,
+            task.due_date,
+            task.created_at
+        ]);
+
+        const csv = [
+            headers.map(csvValue).join(","),
+            ...rows.map(row => row.map(csvValue).join(","))
+        ].join("\r\n");
+
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
+        res.setHeader(
+            "Content-Disposition",
+            'attachment; filename="campussync-task-report.csv"'
+        );
+        res.setHeader("Cache-Control", "no-store");
+
+        return res.send("\uFEFF" + csv);
+
+    } catch (error) {
+        console.error("TASK REPORT ERROR:", error);
+
+        return res.status(500).json({
+            message: "Unable to generate task activity report."
+        });
+    }
+});
+
+// GET /api/admin/reports/reminders
+// Download reminder activity report as CSV.
+router.get("/reports/reminders", async (req, res) => {
+    try {
+        const [reminders] = await db.execute(`
+            SELECT
+                u.full_name AS student,
+                u.student_number,
+                r.message,
+                t.title AS task_title,
+                r.status,
+                r.remind_at,
+                r.created_at
+            FROM reminders r
+            INNER JOIN users u ON u.user_id = r.user_id
+            LEFT JOIN tasks t
+                ON t.task_id = r.task_id
+                AND t.user_id = r.user_id
+            WHERE u.role = 'student'
+            ORDER BY r.created_at DESC
+        `);
+
+        const csvValue = (value) => {
+            if (value === null || value === undefined) {
+                return '""';
+            }
+
+            let text = value instanceof Date
+                ? value.toISOString()
+                : String(value);
+
+            // Prevent spreadsheet formula injection.
+            if (/^[\s]*[=+\-@\t\r]/.test(text)) {
+                text = "'" + text;
+            }
+
+            return `"${text.replace(/"/g, '""')}"`;
+        };
+
+        const headers = [
+            "Student",
+            "Student Number",
+            "Reminder Message",
+            "Related Task",
+            "Status",
+            "Scheduled Date",
+            "Created At"
+        ];
+
+        const rows = reminders.map(reminder => [
+            reminder.student,
+            reminder.student_number,
+            reminder.message,
+            reminder.task_title,
+            reminder.status,
+            reminder.remind_at,
+            reminder.created_at
+        ]);
+
+        const csv = [
+            headers.map(csvValue).join(","),
+            ...rows.map(row => row.map(csvValue).join(","))
+        ].join("\r\n");
+
+        res.setHeader("Content-Type", "text/csv; charset=utf-8");
+        res.setHeader(
+            "Content-Disposition",
+            'attachment; filename="campussync-reminder-report.csv"'
+        );
+        res.setHeader("Cache-Control", "no-store");
+
+        return res.send("\uFEFF" + csv);
+
+    } catch (error) {
+        console.error("REMINDER REPORT ERROR:", error);
+
+        return res.status(500).json({
+            message: "Unable to generate reminder activity report."
+        });
+    }
+});
+
 module.exports = router;
