@@ -355,7 +355,24 @@ p, h1, h2, h3, h4 {
     border-top: 1px solid var(--footer-border);
 }
 
+.logout-btn {
+    background-color: #0a0a30;
+    color: white;
+    border: 1px solid #404080;
+    padding: 10px 22px;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
+.logout-btn:hover {
+    background-color: #dc2626;
+    border-color: #dc2626;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
 
 @media (max-width: 600px) {
     .grid-container {
