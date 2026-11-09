@@ -118,11 +118,12 @@ router.get("/students", async (req, res) => {
 
         const [students] = await db.execute(
             `SELECT
-                user_id AS userId,
-                full_name AS fullName,
-                student_number AS studentNumber,
-                email,
-                created_at AS createdAt
+            user_id AS userId,
+            full_name AS fullName,
+            student_number AS studentNumber,
+            email,
+            created_at AS createdAt,
+            account_status AS accountStatus
              FROM users
              WHERE role = 'student'
                AND (
@@ -145,6 +146,64 @@ router.get("/students", async (req, res) => {
 
         res.status(500).json({
             message: "Unable to retrieve student accounts."
+        });
+    }
+});
+
+// PATCH /api/admin/students/:id/status
+// Suspend or reactivate a student account.
+router.patch("/students/:id/status", async (req, res) => {
+    try {
+        const studentId = Number(req.params.id);
+        const { accountStatus } = req.body;
+
+        if (!Number.isInteger(studentId) || studentId <= 0) {
+            return res.status(400).json({
+                message: "Invalid student ID."
+            });
+        }
+
+        if (!["active", "suspended"].includes(accountStatus)) {
+            return res.status(400).json({
+                message: "Account status must be active or suspended."
+            });
+        }
+
+        // Confirm that the account exists and belongs to a student.
+        const [students] = await db.execute(
+            `SELECT user_id
+             FROM users
+             WHERE user_id = ?
+               AND role = 'student'`,
+            [studentId]
+        );
+
+        if (students.length === 0) {
+            return res.status(404).json({
+                message: "Student account not found."
+            });
+        }
+
+        // Update account status.
+        await db.execute(
+            `UPDATE users
+             SET account_status = ?
+             WHERE user_id = ?
+               AND role = 'student'`,
+            [accountStatus, studentId]
+        );
+
+        return res.json({
+            message: `Student account ${accountStatus === "active" ? "reactivated" : "suspended"} successfully.`,
+            studentId,
+            accountStatus
+        });
+
+    } catch (error) {
+        console.error("ADMIN ACCOUNT STATUS ERROR:", error);
+
+        return res.status(500).json({
+            message: "Unable to update student account status."
         });
     }
 });
@@ -250,4 +309,5 @@ router.get("/activity", async (req, res) => {
         });
     }
 });
+
 module.exports = router;

@@ -1,6 +1,6 @@
 
 (() => {
-  const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
+const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
   const charts = {};
 
   const number = value => Number(value || 0).toLocaleString();
@@ -212,6 +212,8 @@
   }
 
   // Load and display registered students
+ 
+  // Load and display registered students
   async function loadStudents(search = "") {
     const tableBody = document.getElementById("studentsTableBody");
     const countElement = document.getElementById("studentCount");
@@ -223,7 +225,7 @@
     const loadingRow = document.createElement("tr");
     const loadingCell = document.createElement("td");
 
-    loadingCell.colSpan = 4;
+    loadingCell.colSpan = 6;
     loadingCell.textContent = "Loading student accounts...";
 
     loadingRow.appendChild(loadingCell);
@@ -249,7 +251,7 @@
         const row = document.createElement("tr");
         const cell = document.createElement("td");
 
-        cell.colSpan = 4;
+        cell.colSpan = 6;
         cell.textContent = "No students found.";
 
         row.appendChild(cell);
@@ -275,6 +277,90 @@
           row.appendChild(cell);
         });
 
+        // Account status
+        const status = student.accountStatus || "active";
+        const statusCell = document.createElement("td");
+        const statusLabel = document.createElement("span");
+
+        statusLabel.className = `account-status ${status}`;
+        statusLabel.textContent =
+          status.charAt(0).toUpperCase() + status.slice(1);
+
+        statusCell.appendChild(statusLabel);
+        row.appendChild(statusCell);
+
+        // Suspend / Reactivate action
+        const actionCell = document.createElement("td");
+        const actionButton = document.createElement("button");
+
+        const newStatus =
+          status === "active" ? "suspended" : "active";
+
+        actionButton.type = "button";
+        actionButton.className = "account-action-btn";
+        actionButton.textContent =
+          newStatus === "suspended" ? "Suspend" : "Reactivate";
+
+        actionButton.addEventListener("click", async () => {
+          if (
+            newStatus === "suspended" &&
+            !window.confirm(
+              `Are you sure you want to suspend ${student.fullName}'s account?`
+            )
+          ) {
+            return;
+          }
+
+          actionButton.disabled = true;
+          actionButton.textContent = "Updating...";
+
+          try {
+            const response = await fetch(
+              `${API_BASE_URL}/api/admin/students/${encodeURIComponent(student.userId)}/status`,
+              {
+                method: "PATCH",
+                headers: authHeaders(),
+                body: JSON.stringify({
+                  accountStatus: newStatus
+                })
+              }
+            );
+
+            if (response.status === 401) {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              window.location.replace("login.html");
+              return;
+            }
+
+            if (response.status === 403) {
+              window.location.replace("dashboard.html");
+              return;
+            }
+
+            const result = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+              throw new Error(
+                result.message || "Unable to update student account."
+              );
+            }
+
+            await loadStudents(search);
+
+          } catch (error) {
+            console.error("Account status update error:", error);
+            showError(error.message);
+
+            actionButton.disabled = false;
+            actionButton.textContent =
+              newStatus === "suspended" ? "Suspend" : "Reactivate";
+          }
+        });
+
+        actionCell.appendChild(actionButton);
+        row.appendChild(actionCell);
+
         tableBody.appendChild(row);
       });
 
@@ -290,7 +376,7 @@
       const row = document.createElement("tr");
       const cell = document.createElement("td");
 
-      cell.colSpan = 4;
+      cell.colSpan = 6;
       cell.textContent =
         error.message || "Unable to load student accounts.";
 

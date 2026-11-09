@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const db = require("../db");
 
-function requireAuth(req, res, next) {
+async function requireAuth(req, res, next) {
     const header = req.headers.authorization;
 
     if (!header || !header.startsWith("Bearer ")) {
@@ -34,13 +35,40 @@ function requireAuth(req, res, next) {
             });
         }
 
+        // Retrieve the latest account information from the database.
+        const [users] = await db.execute(
+            `SELECT user_id, email, role, account_status
+             FROM users
+             WHERE user_id = ?`,
+            [decoded.userId]
+        );
+
+        if (users.length === 0) {
+            return res.status(401).json({
+                message: "Account no longer exists. Please log in again."
+            });
+        }
+
+        const user = users[0];
+
+        // Block suspended student accounts, including existing sessions.
+        if (
+            user.role === "student" &&
+            user.account_status === "suspended"
+        ) {
+            return res.status(403).json({
+                message: "Your account has been suspended. Please contact the administrator."
+            });
+        }
+
         req.user = {
-            userId: decoded.userId,
-            email: decoded.email,
-            role: decoded.role || "student"
+            userId: user.user_id,
+            email: user.email,
+            role: user.role
         };
 
-        next();
+        return next();
+
     } catch (error) {
         if (error.message === "JWT_SECRET is not configured.") {
             console.error(error.message);
@@ -49,8 +77,20 @@ function requireAuth(req, res, next) {
             });
         }
 
-        return res.status(401).json({
-            message: "Invalid or expired token."
+        if (
+            error.name === "JsonWebTokenError" ||
+            error.name === "TokenExpiredError" ||
+            error.name === "NotBeforeError"
+        ) {
+            return res.status(401).json({
+                message: "Invalid or expired token."
+            });
+        }
+
+        console.error("AUTH MIDDLEWARE ERROR:", error);
+
+        return res.status(500).json({
+            message: "Unable to verify authentication."
         });
     }
 }

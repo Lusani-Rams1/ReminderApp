@@ -69,3 +69,35 @@
         flex-direction: column;
     }
 }
+/* Account status badges */
+.account-status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.account-status.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.account-status.suspended {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* Suspend and reactivate buttons */
+.account-action-btn {
+    padding: 7px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.account-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

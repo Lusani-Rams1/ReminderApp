@@ -24,47 +24,56 @@ router.post("/register", async (req, res) => {
             });
         }
 
+        if (password.length < 8) {
+            return res.status(400).json({
+                message: "Password must contain at least 8 characters."
+            });
+        }
+
         const cleanFullName = fullName.trim();
         const cleanStudentNumber = studentNumber.trim();
         const cleanEmail = email.trim();
 
-        if (password.length < 8) {
-            return res.status(400).json({
-                message: "Password must be at least 8 characters."
-            });
-        }
-
+        // Check whether the email is already registered.
         const [existingEmail] = await db.execute(
             "SELECT user_id FROM users WHERE email = ?",
             [cleanEmail]
         );
+
         if (existingEmail.length > 0) {
             return res.status(409).json({
                 message: "An account with that email already exists."
             });
         }
 
-        const [existingStudent] = await db.execute(
+        // Check whether the student number is already registered.
+        const [existingStudentNumber] = await db.execute(
             "SELECT user_id FROM users WHERE student_number = ?",
             [cleanStudentNumber]
         );
-        if (existingStudent.length > 0) {
+
+        if (existingStudentNumber.length > 0) {
             return res.status(409).json({
-                message: "That student number is already registered."
+                message: "An account with that student number already exists."
             });
         }
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-        // Public registration always creates a student account.
+        // New accounts receive the database default account_status: active.
         const [result] = await db.execute(
-            `INSERT INTO users (full_name, student_number, email, password_hash, role)
+            `INSERT INTO users
+                (full_name, student_number, email, password_hash, role)
              VALUES (?, ?, ?, ?, 'student')`,
             [cleanFullName, cleanStudentNumber, cleanEmail, passwordHash]
         );
 
         const token = jwt.sign(
-            { userId: result.insertId, email: cleanEmail, role: "student" },
+            {
+                userId: result.insertId,
+                email: cleanEmail,
+                role: "student"
+            },
             JWT_SECRET,
             { expiresIn: "7d" }
         );
@@ -80,13 +89,16 @@ router.post("/register", async (req, res) => {
                 role: "student"
             }
         });
+
     } catch (error) {
         if (error.code === "ER_DUP_ENTRY") {
             return res.status(409).json({
                 message: "An account with that email or student number already exists."
             });
         }
+
         console.error("REGISTER ERROR:", error);
+
         return res.status(500).json({
             message: "Server error while creating account."
         });
@@ -109,8 +121,12 @@ router.post("/login", async (req, res) => {
         }
 
         const cleanEmail = email.trim();
+
         const [users] = await db.execute(
-            "SELECT user_id, full_name, student_number, email, password_hash, role FROM users WHERE email = ?",
+            `SELECT user_id, full_name, student_number, email,
+                    password_hash, role, account_status
+             FROM users
+             WHERE email = ?`,
             [cleanEmail]
         );
 
@@ -121,7 +137,12 @@ router.post("/login", async (req, res) => {
         }
 
         const user = users[0];
-        const passwordMatch = await bcrypt.compare(password, user.password_hash);
+
+        // Verify the password.
+        const passwordMatch = await bcrypt.compare(
+            password,
+            user.password_hash
+        );
 
         if (!passwordMatch) {
             return res.status(401).json({
@@ -129,15 +150,32 @@ router.post("/login", async (req, res) => {
             });
         }
 
+        // Prevent suspended students from logging in.
+        if (
+            user.role === "student" &&
+            user.account_status === "suspended"
+        ) {
+            return res.status(403).json({
+                message: "Your account has been suspended. Please contact the administrator."
+            });
+        }
+
+        // Validate the account role.
         const role = user.role || "student";
+
         if (!["student", "admin"].includes(role)) {
             return res.status(403).json({
                 message: "This account has an unrecognised role. Please contact support."
             });
         }
 
+        // Generate authentication token.
         const token = jwt.sign(
-            { userId: user.user_id, email: user.email, role },
+            {
+                userId: user.user_id,
+                email: user.email,
+                role: role
+            },
             JWT_SECRET,
             { expiresIn: "7d" }
         );
@@ -150,11 +188,13 @@ router.post("/login", async (req, res) => {
                 fullName: user.full_name,
                 studentNumber: user.student_number,
                 email: user.email,
-                role
+                role: role
             }
         });
+
     } catch (error) {
         console.error("LOGIN ERROR:", error);
+
         return res.status(500).json({
             message: "Server error while logging in."
         });
