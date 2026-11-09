@@ -1,448 +1,170 @@
-    function openModal() {
-        document.getElementById("assignmentModal").style.display = "flex";
-    }
-
-    function closeModal() {
-        document.getElementById("assignmentModal").style.display = "none";
-    }
-
-
-    
-async function addTask(event) {
-    event.preventDefault();
-
-    const form = event.currentTarget;
-
-    const name = document.getElementById("assignmentName").value.trim();
-    const module = document.getElementById("assignmentModule").value.trim();
-    const date = document.getElementById("assignmentDate").value;
-    const description = document.getElementById("assignmentDescription").value.trim();
-
-    if (!name || !date) {
-        alert("Please enter an assignment name and due date.");
-        return;
-    }
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        alert("Your session has expired. Please log in again.");
-        return;
-    }
-
-    // Use your deployed backend URL here when available.
-    // For local testing, use https://reminderapp-production-36c1.up.railway.app.
-    const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/tasks`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                title: name,
-                description: [module, description]
-                    .filter(Boolean)
-                    .join(" — "),
-                dueDate: date,
-                priority: "medium"
-            })
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.message || "Failed to save task.");
-        }
-
-        alert("Assignment saved successfully!");
-
-        form.reset();
-
-        if (typeof closeModal === "function") {
-            closeModal();
-        }
-
-        // Reload from the database instead of creating a temporary card.
-        if (typeof loadTasks === "function") {
-            await loadTasks();
-        } else {
-            window.location.reload();
-        }
-
-    } catch (error) {
-        console.error("Error saving assignment:", error);
-        alert("Could not save assignment: " + error.message);
-    }
+function openModal() {
+    document.getElementById("assignmentModal").style.display = "flex";
 }
 
+function closeModal() {
+    document.getElementById("assignmentModal").style.display = "none";
+}
 
 async function addTask(event) {
     event.preventDefault();
-
     const form = event.currentTarget;
-
+    const firebase = await window.CampusSyncSession.ready;
     const name = document.getElementById("assignmentName").value.trim();
     const module = document.getElementById("assignmentModule").value.trim();
-    const date = document.getElementById("assignmentDate").value;
+    const dueDate = document.getElementById("assignmentDate").value;
     const description = document.getElementById("assignmentDescription").value.trim();
     const reminderAt = document.getElementById("reminderDateTime").value;
+    const user = window.CampusSyncLocal.getCurrentUser();
 
-    if (!name || !date) {
-        alert("Please enter an assignment name and due date.");
+    if (!user || user.role !== "student") {
+        alert("Sign in with a student account to add assignments.");
         return;
     }
-
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        alert("Your session has expired. Please log in again.");
+    if (!name || !module || !dueDate) {
+        alert("Please enter an assignment name, module, and due date.");
         return;
     }
-
-    // Validate an optional reminder before creating the task.
     if (reminderAt) {
         const reminderDate = new Date(reminderAt);
-        const dueDate = new Date(`${date}T23:59:59`);
-
-        if (Number.isNaN(reminderDate.getTime())) {
-            alert("Please select a valid reminder date and time.");
-            return;
-        }
-
-        if (reminderDate <= new Date()) {
-            alert("The reminder must be set for a future time.");
-            return;
-        }
-
-        if (reminderDate > dueDate) {
-            alert("Choose a reminder time before the assignment deadline.");
+        const deadline = new Date(`${dueDate}T23:59:59`);
+        if (Number.isNaN(reminderDate.getTime()) || reminderDate <= new Date() || reminderDate > deadline) {
+            alert("Choose a valid reminder time in the future and before the assignment deadline.");
             return;
         }
     }
 
-    const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
-
     try {
-        // First, save the assignment.
-        const taskResponse = await fetch(`${API_BASE_URL}/api/tasks`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                title: name,
-                description: [module, description]
-                    .filter(Boolean)
-                    .join(" — "),
-                dueDate: date,
-                priority: "medium"
-            })
-        });
-
-        const taskResult = await taskResponse.json();
-
-        if (!taskResponse.ok) {
-            throw new Error(
-                taskResult.message || "Failed to save assignment."
-            );
-        }
-
-        // Only create a reminder if the student selected a time.
-        if (reminderAt) {
-            const taskId = taskResult.taskId ?? taskResult.task_id;
-
-            if (!taskId) {
-                alert(
-                    "Assignment saved, but the server did not return its ID. " +
-                    "The reminder was not created."
-                );
-
-                form.reset();
-
-                if (typeof closeModal === "function") closeModal();
-                await loadTasks();
-                return;
-            }
-
-            try {
-                const reminderResponse = await fetch(
-                    `${API_BASE_URL}/api/reminders`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            message: `Reminder: ${name}${module ? ` (${module})` : ""} is due on ${date}.`,
-                            remindAt: reminderAt,
-                            taskId: taskId
-                        })
-                    }
-                );
-
-                const reminderResult = await reminderResponse.json();
-
-                if (!reminderResponse.ok) {
-                    throw new Error(
-                        reminderResult.message || "Could not create reminder."
-                    );
-                }
-
-                alert("Assignment and reminder saved successfully!");
-
-            } catch (reminderError) {
-                console.error("Reminder creation failed:", reminderError);
-
-                // The assignment was already saved; don't imply otherwise.
-                alert(
-                    "Assignment saved successfully, but the reminder could not " +
-                    "be created: " + reminderError.message
-                );
-            }
-        } else {
-            alert("Assignment saved successfully!");
-        }
-
+        const assignment = {
+            title: name,
+            description: [module, description].filter(Boolean).join(" — "),
+            dueDate,
+            priority: "medium"
+        };
+        if (firebase) await firebase.createTask({...assignment, reminderAt});
+        else window.CampusSyncLocal.addTask(user.id, assignment, reminderAt);
         form.reset();
-
-        if (typeof closeModal === "function") {
-            closeModal();
-        }
-
-        if (typeof loadTasks === "function") {
-            await loadTasks();
-        } else {
-            window.location.reload();
-        }
-
+        closeModal();
+        if (!firebase) renderTasks(window.CampusSyncLocal.getTasks(user.id), user, null);
     } catch (error) {
-        console.error("Error saving assignment:", error);
-        alert("Could not save assignment: " + error.message);
+        console.error("Could not save assignment.", error);
+        alert(error.message);
     }
 }
 
-    function completeTask(button) {
+let selectedTaskFilter='all';
+function filterTasks(filter,button){selectedTaskFilter=filter;document.querySelectorAll('.filter-btn').forEach(item=>item.classList.toggle('active',item===button));document.querySelectorAll('.task-row').forEach(row=>{row.hidden=filter!=='all'&&row.dataset.status!==filter;});}
 
-        const card =
-            button.closest(".task-card");
+window.addEventListener("click", event => {
+    const modal = document.getElementById("assignmentModal");
+    if (event.target === modal) closeModal();
+});
 
-        card.dataset.status = "completed";
-
-        card.classList.add("completed");
-
-        button.textContent = "Completed";
-
-        button.disabled = true;
-
+function renderTasks(tasks, user, firebase) {
+    const container = document.getElementById('taskContainer');
+    container.replaceChildren();
+    if (!tasks.length) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-state';
+        empty.textContent = 'No personal reminders yet. Create one to track your own deadlines.';
+        container.append(empty);
+        return;
     }
 
+    const wrapper = document.createElement('div');
+    wrapper.className = 'table-responsive';
+    const table = document.createElement('table');
+    table.className = 'tasks-table';
+    table.innerHTML = '<thead><tr><th>Task</th><th>Due Date</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>';
+    const body = table.createTBody();
+    const ordered = [...tasks].sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || ''));
+    const labels = {pending: 'Pending', submitted: 'Submitted', completed: 'Completed'};
 
-    function deleteTask(button) {
+    for (const task of ordered) {
+        const state = String(task.status || 'pending').toLowerCase();
+        const row = body.insertRow();
+        row.className = 'task-row';
+        row.dataset.status = state;
+        row.hidden = selectedTaskFilter !== 'all' && state !== selectedTaskFilter;
 
-        const card =
-            button.closest(".task-card");
+        const title = document.createElement('strong');
+        title.className = 'task-title';
+        title.textContent = task.title;
+        const description = document.createElement('p');
+        description.className = 'task-desc';
+        description.textContent = task.description || 'No details added.';
+        row.insertCell().append(title, description);
 
-        if (confirm("Delete this assignment?")) {
+        const due = row.insertCell();
+        due.className = 'task-due';
+        due.textContent = task.dueDate
+            ? new Date(task.dueDate + 'T12:00:00').toLocaleDateString(undefined, {year: 'numeric', month: 'short', day: 'numeric'})
+            : 'No due date';
+        const level = String(task.priority || 'medium').toLowerCase();
+        const priority = document.createElement('span');
+        priority.className = 'badge badge-' + level;
+        priority.textContent = level[0].toUpperCase() + level.slice(1);
+        row.insertCell().append(priority);
+        const status = document.createElement('span');
+        status.className = 'badge badge-' + state;
+        status.textContent = labels[state] || labels.pending;
+        row.insertCell().append(status);
 
-            card.remove();
-
+        const group = document.createElement('div');
+        group.className = 'admin-inline-form';
+        const select = document.createElement('select');
+        select.className = 'status-select';
+        select.setAttribute('aria-label', 'Status for ' + task.title);
+        for (const value of state === 'submitted' ? ['pending', 'submitted', 'completed'] : ['pending', 'completed']) {
+            select.add(new Option(labels[value], value));
         }
+        select.value = labels[state] ? state : 'pending';
 
-    }
-
-
-    function filterTasks(filter, button) {
-
-        document
-            .querySelectorAll(".filter-btn")
-            .forEach(btn => btn.classList.remove("active"));
-
-        button.classList.add("active");
-
-
-        document
-            .querySelectorAll(".task-card")
-            .forEach(card => {
-
-                if (
-                    filter === "all" ||
-                    card.dataset.status === filter
-                ) {
-
-                    card.style.display = "block";
-
-                } else {
-
-                    card.style.display = "none";
-
+        const save = document.createElement('button');
+        save.type = 'button';
+        save.className = 'btn btn-sm btn-primary';
+        save.textContent = 'Save';
+        save.onclick = async () => {
+            save.disabled = true;
+            try {
+                if (firebase) await firebase.updateItem('tasks', task.id, {status: labels[select.value]});
+                else {
+                    window.CampusSyncLocal.updateTask(user.id, task.id, {status: select.value});
+                    renderTasks(window.CampusSyncLocal.getTasks(user.id), user, null);
                 }
-
-            });
-
+            } catch (error) { alert(error.message); }
+            finally { save.disabled = false; }
+        };
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'btn btn-sm btn-danger';
+        remove.textContent = 'Delete';
+        remove.onclick = async () => {
+            if (!confirm('Delete this assignment?')) return;
+            remove.disabled = true;
+            try {
+                if (firebase) await firebase.removeItem('tasks', task.id);
+                else {
+                    window.CampusSyncLocal.deleteTask(user.id, task.id);
+                    renderTasks(window.CampusSyncLocal.getTasks(user.id), user, null);
+                }
+            } catch (error) { alert(error.message); }
+            finally { remove.disabled = false; }
+        };
+        group.append(select, save, remove);
+        row.insertCell().append(group);
     }
+    wrapper.append(table);
+    container.append(wrapper);
+}
 
-    window.onclick = function(event) {
-
-        const modal =
-            document.getElementById("assignmentModal");
-
-        if (event.target === modal) {
-
-            closeModal();
-
-        }
-
-    };
-
-    async function loadTasks() {
-    const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
-    const token = localStorage.getItem("token");
-    const container = document.getElementById("taskContainer");
-
-    if (!container) {
-        console.error("Task container not found.");
-        return;
-    }
-
-    if (!token) {
-        console.error("No authentication token found.");
-        return;
-    }
-
+document.addEventListener('DOMContentLoaded', async () => {
+    const firebase = await window.CampusSyncSession.ready;
+    const user = window.CampusSyncLocal.getCurrentUser();
+    if (user?.role !== 'student') return;
+    const showError = error => { document.getElementById('taskContainer').textContent = error.message; };
     try {
-        const response = await fetch(`${API_BASE_URL}/api/tasks`, {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                result.message || "Failed to load assignments."
-            );
-        }
-
-        if (!Array.isArray(result.tasks)) {
-            throw new Error("The server returned an unexpected task format.");
-        }
-
-        // Remove old cards before displaying database records.
-        container.innerHTML = "";
-
-        result.tasks.forEach(task => {
-            const card = document.createElement("div");
-            card.className = "task-card";
-            card.dataset.status = task.status || "pending";
-
-            const dueDate = task.due_date
-                ? new Date(task.due_date).toLocaleDateString("en-GB")
-                : "No due date";
-
-            const title = document.createElement("div");
-            title.className = "task-title";
-            title.textContent = task.title;
-
-            const description = document.createElement("p");
-            description.className = "task-description";
-            description.textContent = task.description || "";
-
-            const date = document.createElement("div");
-            date.className = "due-date";
-            date.textContent = `Due: ${dueDate}`;
-
-            const actions = document.createElement("div");
-            actions.className = "task-actions";
-
-            const completeButton = document.createElement("button");
-            completeButton.className = "complete-btn";
-            completeButton.textContent =
-                task.status === "completed"
-                    ? "Completed"
-                    : "Mark Complete";
-
-            completeButton.disabled = task.status === "completed";
-
-            completeButton.addEventListener("click", async () => {
-                try {
-                    const update = await fetch(
-                        `${API_BASE_URL}/api/tasks/${task.task_id}`,
-                        {
-                            method: "PATCH",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                                status: "completed"
-                            })
-                        }
-                    );
-
-                    const data = await update.json();
-
-                    if (!update.ok) {
-                        throw new Error(
-                            data.message || "Could not complete assignment."
-                        );
-                    }
-
-                    await loadTasks();
-                } catch (error) {
-                    console.error(error);
-                    alert(error.message);
-                }
-            });
-
-            const deleteButton = document.createElement("button");
-            deleteButton.className = "delete-btn";
-            deleteButton.textContent = "Delete";
-
-            deleteButton.addEventListener("click", async () => {
-                if (!confirm("Delete this assignment?")) return;
-
-                try {
-                    const deletion = await fetch(
-                        `${API_BASE_URL}/api/tasks/${task.task_id}`,
-                        {
-                            method: "DELETE",
-                            headers: {
-                                "Authorization": `Bearer ${token}`
-                            }
-                        }
-                    );
-
-                    const data = await deletion.json();
-
-                    if (!deletion.ok) {
-                        throw new Error(
-                            data.message || "Could not delete assignment."
-                        );
-                    }
-
-                    await loadTasks();
-                } catch (error) {
-                    console.error(error);
-                    alert(error.message);
-                }
-            });
-
-            actions.append(completeButton, deleteButton);
-            card.append(title, description, date, actions);
-            container.appendChild(card);
-        });
-
-    } catch (error) {
-        console.error("Error loading assignments:", error);
-        alert("Could not load assignments: " + error.message);
-    }
-}
-
-document.addEventListener("DOMContentLoaded", loadTasks);
+        if (firebase) await firebase.watchItems('tasks', tasks => renderTasks(tasks, user, firebase), showError);
+        else renderTasks(window.CampusSyncLocal.getTasks(user.id), user, null);
+    } catch (error) { showError(error); }
+});

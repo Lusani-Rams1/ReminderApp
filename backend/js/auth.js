@@ -1,48 +1,42 @@
-document.addEventListener('DOMContentLoaded', function () {
-  const authActions = document.querySelectorAll('[data-auth-actions]');
-  const scheduleAction = document.getElementById('scheduleAction');
+document.addEventListener("DOMContentLoaded", () => {
+    const user = window.CampusSyncLocal.getCurrentUser();
+    const actions = document.querySelectorAll("[data-auth-actions]");
 
-  // Login/register store the session under "token" and "user".
-  // The old script checked "campusSyncCurrentUser", so it incorrectly
-  // displayed Login/Get Started even after a successful API login.
-  let currentUser = null;
-  try {
-    currentUser = JSON.parse(localStorage.getItem('user') || 'null');
-  } catch (error) {
-    currentUser = null;
-  }
+    actions.forEach(container => {
+        if (!user) {
+            container.innerHTML =
+                '<a href="login.html" class="btn btn-outline">Login</a>' +
+                '<a href="register.html" class="btn btn-primary">Get Started</a>';
+            return;
+        }
 
-  const isLoggedIn = Boolean(localStorage.getItem('token'));
+        const dashboardLink = document.createElement("a");
+        dashboardLink.href = window.CampusSyncLocal.dashboards[user.role];
+        dashboardLink.className = "user-chip nav-account-link";
+        dashboardLink.textContent = user.fullName;
+        const logoutButton = document.createElement("button");
+        logoutButton.type = "button";
+        logoutButton.className = "btn btn-outline logout-btn";
+        logoutButton.textContent = "Log out";
+        logoutButton.addEventListener("click", () => {
+            window.CampusSyncLocal.removeCurrentUser();
+            window.location.assign("index.html");
+        });
+        const accountLinks = [dashboardLink];
+        if (user.role === "student") {
+            const notificationsLink = document.createElement("a");
+            notificationsLink.href = "notifications.html";
+            notificationsLink.className = "user-chip nav-account-link";
+            notificationsLink.textContent = "Notifications";
+            accountLinks.push(notificationsLink);
+        }
+        accountLinks.push(logoutButton);
+        container.replaceChildren(...accountLinks);
+    });
 
-  authActions.forEach(function (actions) {
-    if (isLoggedIn) {
-      // Use links with visible labels so navigation still works even if
-      // an icon library is not loaded on a particular page.
-      actions.innerHTML =
-        '<a href="notifications.html" class="user-chip nav-account-link" aria-label="Notifications" title="Notifications">' +
-          '<i class="bi bi-bell fs-4" aria-hidden="true"></i><span class="user-name">Notifications</span>' +
-        '</a>' +
-        '<a href="profile.html" class="user-chip nav-account-link" aria-label="Open your profile" title="Profile">' +
-          '<i class="bi bi-person-circle fs-4" aria-hidden="true"></i><span class="user-name">Profile</span>' +
-        '</a>' +
-        '<button type="button" class="btn btn-outline logout-btn">Log out</button>';
-
-      const logoutButton = actions.querySelector('.logout-btn');
-      logoutButton.addEventListener('click', function () {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('campusSyncCurrentUser');
-        window.location.href = 'login.html';
-      });
-    } else {
-      actions.innerHTML =
-        '<a href="login.html" class="btn btn-outline">Login</a>' +
-        '<a href="register.html" class="btn btn-primary">Get Started</a>';
+    const scheduleAction = document.getElementById("scheduleAction");
+    if (scheduleAction && user?.role === "student") {
+        scheduleAction.textContent = "Manage your schedule";
+        scheduleAction.href = "schedule.html";
     }
-  });
-
-  if (scheduleAction && isLoggedIn) {
-    scheduleAction.textContent = 'Manage your schedule';
-    scheduleAction.href = 'calendar.html';
-  }
 });

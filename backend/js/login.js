@@ -1,66 +1,61 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('loginForm');
-  const errorMessage = document.getElementById('errorMessage');
+    const form = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const googleButton = document.getElementById('googleSignIn');
+    const session = window.CampusSyncSession;
+    const emailButton = form.querySelector('[type=submit]');
+    let busy = false;
 
-  if (!form || !errorMessage) {
-    console.error('Login form or error message element was not found.');
-    return;
-  }
-
-  errorMessage.style.display = 'none';
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errorMessage.style.display = 'none';
-
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const submitBtn = form.querySelector('.login-btn');
-
-    submitBtn.disabled = true;
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = 'Signing in...';
-
-    try {
-      const res = await fetch('https://reminderapp-production-36c1.up.railway.app/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        errorMessage.textContent = data.message || 'Invalid email or password.';
-        errorMessage.style.display = 'block';
-        return;
-      }
-
-      // The backend must return the database role for this account.
-      const role = String(data.user?.role || '').toLowerCase();
-      if (!data.token || !data.user || !['student', 'admin'].includes(role)) {
-        errorMessage.textContent = 'The server returned an incomplete account profile. Please contact support.';
-        errorMessage.style.display = 'block';
-        return;
-      }
-
-      // Save the authenticated session.
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-
-      // Redirect according to the role assigned in the database.
-      window.location.href = role === 'admin' ? 'admin.html' : 'dashboard.html';
-    } catch (err) {
-      console.error('LOGIN ERROR:', err);
-      errorMessage.textContent = 'Unable to reach the server. Please try again.';
-      errorMessage.style.display = 'block';
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
+    function setBusy(value) {
+        busy = value;
+        emailButton.disabled = value;
+        googleButton.disabled = value;
     }
-  });
-});
+    let firebase;
+    session.loadFirebase().then(client => { firebase = client; }).catch(() => {});
 
-function googleLogin() {
-  alert('Google login is not set up yet.');
-}
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (busy) return;
+        setBusy(true);
+        errorMessage.style.display = 'none';
+        try {
+            await session.signOut();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const user = window.CampusSyncLocal.signIn(email, password, ['student']);
+            location.assign(window.CampusSyncLocal.dashboards[user.role]);
+        } catch (error) {
+            showError(error.message);
+        } finally { setBusy(false); }
+    });
+
+    googleButton.addEventListener('click', async () => {
+        if (busy) return;
+        errorMessage.style.display = 'none';
+        if (!firebase) {
+            showError('Google sign-in is loading. Try again in a moment.');
+            try {
+                firebase = await session.loadFirebase();
+                errorMessage.style.display = 'none';
+            } catch {
+                showError('Could not load Google sign-in. Check your internet connection and try again.');
+            }
+            return;
+        }
+        setBusy(true);
+        try {
+            await session.signInWithGoogle(firebase);
+            location.assign('dashboard.html');
+        } catch (error) {
+            showError(firebase.friendlyError(error));
+        } finally {
+            setBusy(false);
+        }
+    });
+});

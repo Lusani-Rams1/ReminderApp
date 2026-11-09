@@ -3,652 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>CampusSync Stay Organised. Stay Ahead.</title>
-
-    <meta name="description" content="CampusSync helps students manage academic tasks, deadlines, subjects, reminders and progress in one place.">
-
-    <link rel="stylesheet" href="CSS/landing page.css">
-</head>
-
-<body>
-
-        <script>
-        if (localStorage.getItem('theme') === 'dark') {
-            document.body.classList.add('dark');
-        }
-    </script>
-
-<!--NAVIGATION-->
-<header class="navbar">
-    <div class="nav-container">
-
-        <a href="login.html" class="logo">
-            <div class="logo-icon">C</div>
-            CampusSync
-        </a>
-
-        <nav class="nav-links">
-            <a href="#features">Features</a>
-            <a href="#how-it-works">How It Works</a>
-            <a href="#rewards">Rewards</a>
-            <a href="About.html">About</a>
-        </nav>
-
-        <div class="nav-buttons">
-            <a href="login.html" class="btn btn-outline">
-                Login
-            </a>
-
-            <a href="register.html" class="btn btn-primary">
-                Get Started
-            </a>
-        </div>
-
-    </div>
-</header>
-
-<!--HERO-->
-<main>
-
-<section class="hero">
-
-    <div class="hero-content">
-
-        <div class="hero-badge">
-            Built for Student Success
-        </div>
-
-        <h1>
-            Stay Organised.
-            <span>Stay Ahead.</span>
-        </h1>
-
-        <p class="hero-description">
-            CampusSync helps you manage your academic responsibilities,
-            track tasks, monitor deadlines and build consistency - 
-            all in one place.
-        </p>
-
-        <div class="hero-buttons">
-
-            <a href="register.html" class="btn btn-primary">
-                Get Started →
-            </a>
-
-            <a href="#features" class="btn btn-outline">
-                Explore Features
-            </a>
-
-        </div>
-
-    </div>
-
-    <!-- Dashboard Preview -->
-    <div class="dashboard-preview">
-
-        <div class="preview-top">
-
-            <div class="preview-title">
-                <h3>Academic Dashboard</h3>
-                <p>Your responsibilities at a glance</p>
-            </div>
-
-            <div class="preview-user">
-                LR
-            </div>
-
-        </div>
-
-        <!-- Summary Cards -->
-        <div class="preview-summary">
-
-            <div class="preview-card primary">
-                <p>Total Tasks</p>
-                <strong>12</strong>
-            </div>
-
-            <div class="preview-card warning">
-                <p>Pending</p>
-                <strong>5</strong>
-            </div>
-
-            <div class="preview-card danger">
-                <p>Due Today</p>
-                <strong>2</strong>
-            </div>
-
-            <div class="preview-card success">
-                <p>Completion</p>
-                <strong>58%</strong>
-            </div>
-
-        </div>
-
-        <!-- High Priority -->
-        <div class="preview-section">
-
-            <div class="preview-section-header">
-
-                <h4> High Priority Tasks</h4>
-
-                <span class="view-all">
-                    View All
-                </span>
-
-            </div>
-
-            <div class="task-preview">
-
-                <div class="task-left">
-
-                    <div class="priority-dot"></div>
-
-                    <div>
-                        <div class="task-name">
-                            Database Assignment
-                        </div>
-
-                        <div class="task-date">
-                            Due: September 8
-                        </div>
-                    </div>
-
-                </div>
-
-                <span class="priority-badge">
-                    High
-                </span>
-
-            </div>
-
-            <div class="task-preview">
-
-                <div class="task-left">
-
-                    <div class="priority-dot"></div>
-
-                    <div>
-                        <div class="task-name">
-                            Software Development Project
-                        </div>
-
-                        <div class="task-date">
-                            Due: September 10
-                        </div>
-                    </div>
-
-                </div>
-
-                <span class="priority-badge">
-                    High
-                </span>
-
-            </div>
-
-        </div>
-
-        <!-- Upcoming Deadlines -->
-        <div class="preview-section">
-
-            <div class="preview-section-header">
-
-                <h4> Upcoming Deadlines</h4>
-
-                <span class="view-all">
-                    Next 7 Days
-                </span>
-
-            </div>
-
-            <div class="task-preview">
-
-                <div>
-                    <div class="task-name">
-                        Systems Analysis Report
-                    </div>
-
-                    <div class="task-date">
-                        Due: September 12
-                    </div>
-                </div>
-
-                <span class="priority-badge">
-                    Medium
-                </span>
-
-            </div>
-
-        </div>
-
-        <!-- Rewards -->
-        <div class="reward-preview">
-
-            <div>
-                <strong> Task Rewards</strong>
-
+    <title>Smart Reminder System - Intuthuko College</title>
+    <link rel="icon" href="images/logo.png" type="image/png">
+    <link rel="stylesheet" href="CSS/reference.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="CSS/portal-html.css"></head>
+<body class="landing-page">
+    <header class="landing-header">
+        <nav class="landing-nav" aria-label="Main navigation">
+            <a class="landing-brand" href="index.html" aria-label="Intuthuko College home">
+                <img class="brand-logo" src="images/logo.png" alt="Intuthuko College logo">
                 <span>
-                    Earn 10 points for every finished task.
+                    <strong>Intuthuko College</strong>
+                    <small>Smart Reminder System</small>
                 </span>
+            </a>
+
+            <div class="landing-links" id="landingLinks">
+                <a href="index.html">Home</a>
+                <a href="#notice">Notice</a>
+                <a href="#subjects">Subjects</a>
             </div>
 
-            <div class="reward-points">
-                70 pts
+            <div class="landing-actions" id="landingActions">
+                <a href="login.html" class="btn btn-ghost">Sign In</a>
+                <a href="register.html" class="btn btn-primary">Get Started</a>
             </div>
 
-        </div>
+            <button class="hamburger landing-hamburger" onclick="document.getElementById('landingLinks').classList.toggle('active'); document.getElementById('landingActions').classList.toggle('active'); this.classList.toggle('active');" aria-label="Toggle navigation menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
 
-    </div>
-
-</section>
-
-<!--INTRODUCTION-->
-<section class="intro" id="about">
-
-    <div class="intro-container">
-
-        <div class="section-label">
-            One Place. Less Stress.
-        </div>
-
-        <h2>
-            Your academic responsibilities, organised.
-        </h2>
-
-        <p>
-            CampusSync gives students an at a glance view of their
-            academic responsibilities, reminders and progress.
-            From high-priority tasks to upcoming deadlines,
-            everything is designed to help you stay on track.
-        </p>
-
-    </div>
-
-</section>
-
-<!--FEATURES-->
-<section class="features" id="features">
-
-    <div class="section-heading">
-
-        <div class="section-label">
-            CampusSync Features
-        </div>
-
-        <h2>
-            Everything you need to stay on top of your work.
-        </h2>
-
-        <p>
-            Manage your academic responsibilities and keep your
-            important work visible from one central dashboard.
-        </p>
-
-    </div>
-
-    <div class="feature-grid">
-
-        <!-- Feature 1 -->
-        <div class="feature-card">
-
-            <div class="feature-icon">
-                
-            </div>
-
-            <h3>
-                Task Management
-            </h3>
-
-            <p>
-                Create, manage and track your academic tasks so
-                you always know what needs to be completed.
-            </p>
-
-        </div>
-
-        <!-- Feature 2 -->
-        <div class="feature-card">
-
-            <div class="feature-icon">
-                
-            </div>
-
-            <h3>
-                Deadline Tracking
-            </h3>
-
-            <p>
-                Keep upcoming deadlines visible and identify
-                tasks that need your attention before they are due.
-            </p>
-
-        </div>
-
-        <!-- Feature 3 -->
-        <div class="feature-card">
-
-            <div class="feature-icon">
-                
-            </div>
-
-            <h3>
-                Priority Tasks
-            </h3>
-
-            <p>
-                Quickly identify high-priority work and focus
-                your attention on the tasks that matter most.
-            </p>
-
-        </div>
-
-        <!-- Feature 4 -->
-        <div class="feature-card">
-
-            <div class="feature-icon">
-                
-            </div>
-
-            <h3>
-                Task Rewards
-            </h3>
-
-            <p>
-                Earn 10 points for every finished task and use
-                your progress to build consistency.
-            </p>
-
-        </div>
-
-        <!-- Feature 5 -->
-        <div class="feature-card">
-
-            <div class="feature-icon">
-                
-            </div>
-
-            <h3>
-                Subject Management
-            </h3>
-
-            <p>
-                Keep your selected subjects organised as part
-                of your academic planning and tutoring plan.
-            </p>
-
-        </div>
-
-        <!-- Feature 6 -->
-        <div class="feature-card">
-
-            <div class="feature-icon">
-                
-            </div>
-
-            <h3>
-                Progress Overview
-            </h3>
-
-            <p>
-                View total tasks, pending tasks, tasks due today
-                and your overall completion rate at a glance.
-            </p>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!--HOW IT WORKS-->
-<section class="how-it-works" id="how-it-works">
-
-    <div class="steps-container">
-
-        <div class="section-heading">
-
-            <div class="section-label">
-                How It Works
-            </div>
-
-            <h2>
-                Start organising your academic life.
-            </h2>
-
-            <p>
-                Getting started with CampusSync is simple.
-            </p>
-
-        </div>
-
-        <div class="steps">
-
-            <!-- Step 1 -->
-            <div class="step">
-
-                <div class="step-number">
-                    1
+    <main>
+        <section class="hero-section" id="home">
+            <div class="hero-content">
+                <p class="hero-kicker">College of BOL learning support</p>
+                <h1>Gateway to Unlimited Educational Resources</h1>
+                <p class="hero-description">
+                    A focused web application that helps Intuthuko College staff and tutors manage tasks,
+                    schedules, due dates, reminders, and rewards without relying on manual notebooks.
+                </p>
+                <div class="hero-buttons">
+                    <a href="register.html" class="btn btn-primary btn-large">Get Started</a>
+                    <a href="#overview" class="btn btn-outline btn-large">Learn More</a>
                 </div>
-
-                <h3>
-                    Create Your Account
-                </h3>
-
-                <p>
-                    Register for CampusSync and create your
-                    student account.
-                </p>
-
             </div>
 
-            <!-- Step 2 -->
-            <div class="step">
+            <div class="hero-media" aria-label="Academic learning environment">
+                <img
+                    class="hero-img hero-img-top"
+                    src="images/learner in class.jpg"
+                    alt="Learner focused on class work"
+                >
+                <img
+                    class="hero-img hero-img-tall"
+                    src="images/learners  of a high school  in the.jpg"
+                    alt="Smiling high school learners at Intuthuko College"
+                >
+                <img
+                    class="hero-img hero-img-bottom"
+                    src="images/children in class 3.jpg"
+                    alt="Students learning together during a tutoring session"
+                >
 
-                <div class="step-number">
-                    2
+                <div class="stat-card stat-card-students">
+                    <span>Active Students</span>
+                    <strong>250+</strong>
                 </div>
-
-                <h3>
-                    Add Your Responsibilities
-                </h3>
-
-                <p>
-                    Add tasks, deadlines and subjects that
-                    are part of your academic plan.
-                </p>
-
-            </div>
-
-            <!-- Step 3 -->
-            <div class="step">
-
-                <div class="step-number">
-                    3
+                <div class="stat-card stat-card-courses">
+                    <span>Available Subjects</span>
+                    <strong>12</strong>
                 </div>
+            </div>
+        </section>
 
-                <h3>
-                    Stay On Track
-                </h3>
-
+        <section class="landing-section" id="overview">
+            <div class="section-copy">
+                <p class="section-kicker">Overview</p>
+                <h2>Simple reminders for busy academic teams</h2>
                 <p>
-                    Monitor your progress, complete tasks and
-                    stay ahead of upcoming deadlines.
+                    The Smart Reminder System gives tutors and staff one place to track pending tasks,
+                    upcoming deadlines, urgent work, completed responsibilities, and earned reward points.
                 </p>
-
             </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<!--REWARDS-->
-<section class="reward-section" id="rewards">
-
-    <div class="reward-box">
-
-        <div>
-
-            <div class="section-label">
-                Task Rewards
+            <div class="feature-grid">
+                <article class="feature-item">
+                    <h3>Task Tracking</h3>
+                    <p>Create and manage academic or administrative tasks with priority levels and due dates.</p>
+                </article>
+                <article class="feature-item">
+                    <h3>Due-Date Reminders</h3>
+                    <p>View urgent and overdue items quickly so important college work is easier to follow up.</p>
+                </article>
+                <article class="feature-item">
+                    <h3>Reward Points</h3>
+                    <p>Earn points for finished tasks so progress feels visible, motivating, and easy to celebrate.</p>
+                </article>
+                <article class="feature-item">
+                    <h3>Staff Access</h3>
+                    <p>Secure sign-in keeps each user's tasks connected to their own dashboard session.</p>
+                </article>
             </div>
+        </section>
 
-            <h2>
-                Turn completed work into progress.
-            </h2>
-
+        <section class="landing-band" id="notice">
+            <div>
+                <p class="section-kicker">Notice</p>
+                <h2>Designed for Intuthuko College staff and tutors</h2>
+            </div>
             <p>
-                Complete your work, build consistency and track
-                your progress as you stay ahead of deadlines.
-                CampusSync awards 10 points for every finished task.
+                Sign in to manage your reminders, or create an account to start organizing class preparation,
+                learner support, assessment dates, and daily administration.
             </p>
+            <a href="login.html" class="btn btn-secondary">Sign In</a>
+        </section>
 
-        </div>
-
-        <div class="reward-highlight">
-
-            <strong>
-                +10
-            </strong>
-
-            <span>
-                points per completed task
-            </span>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!--FINAL CTA-->
-<section class="cta">
-
-    <div class="cta-container">
-
-        <div class="section-label">
-            Get Started
-        </div>
-
-        <h2>
-            Ready to take control of your academic workload?
-        </h2>
-
-        <p>
-            Create your CampusSync account and start managing
-            your tasks, deadlines and academic responsibilities.
-        </p>
-
-        <a href="register.html" class="btn btn-primary">
-            Create Your Account →
-        </a>
-
-    </div>
-
-</section>
-
-</main>
-
-<!--FOOTER-->
-
-<footer>
-
-    <div class="footer-container">
-
-        <div class="footer-main">
-
-            <!-- Brand -->
-
-            <div class="footer-brand">
-
-                <a href="index.html" class="logo">
-
-                    <div class="logo-icon">
-                        C
-                    </div>
-
-                    CampusSync
-
-                </a>
-
+        <section class="landing-section" id="subjects">
+            <div class="section-copy">
+                <p class="section-kicker">Subjects</p>
+                <h2>Select subjects before completing sign up</h2>
                 <p>
-                    A student-focused academic management system
-                    designed to help you organise responsibilities,
-                    track deadlines and stay ahead.
+                    Learners can choose the tutoring subjects they need, review the monthly subject fees,
+                    and complete registration with a clear academic plan.
                 </p>
+            </div>
+        </section>
 
+        <section class="landing-section team-section" id="specialists">
+            <div class="section-copy">
+                <p class="section-kicker">Meet the Team</p>
+                <h2>Meet Our Specialists</h2>
+                <p>
+                    Intuthuko College is supported by tutors who help learners stay prepared,
+                    confident, and on schedule.
+                </p>
             </div>
 
-            <!-- Platform -->
-
-            <div class="footer-column">
-
-                <h4>
-                    Platform
-                </h4>
-
-                <a href="#features">
-                    Features
-                </a>
-
-                <a href="#how-it-works">
-                    How It Works
-                </a>
-
-                <a href="#rewards">
-                    Task Rewards
-                </a>
-
-                <a href="login.html">
-                    Login
-                </a>
-
+            <div class="team-grid">
+                <article class="team-member">
+                    <img src="images/mr Rambo.jpg" alt="Mr. Rambo - Mathematics Specialist">
+                    <h3>Mr. Rambo</h3>
+                    <p>Mathematics Specialist</p>
+                </article>
+                <article class="team-member">
+                    <img src="images/mr tutombo.jpg" alt="Mr. Tutombo - Science Specialist">
+                    <h3>Mr. Tutombo</h3>
+                    <p>Science Specialist</p>
+                </article>
+                <article class="team-member">
+                    <div class="team-photo-placeholder" aria-hidden="true">MT</div>
+                    <h3>Mrs. Tumi</h3>
+                    <p>English Specialist</p>
+                </article>
+                <article class="team-member">
+                    <div class="team-photo-placeholder" aria-hidden="true">ML</div>
+                    <h3>Mrs. Lesego</h3>
+                    <p>Learner Support Specialist</p>
+                </article>
             </div>
+        </section>
+    </main>
 
-            <!-- Account -->
-
-            <div class="footer-column">
-
-                <h4>
-                    Account
-                </h4>
-
-                <a href="register.html">
-                    Create Account
-                </a>
-
-                <a href="login.html">
-                    Sign In
-                </a>
-
-                <a href="login.html">
-                    Forgot Password
-                </a>
-
-            </div>
-
-        </div>
-
-        <div class="footer-bottom">
-
-            <span>
-                © 2026 CampusSync. All Rights Reserved.
-            </span>
-
-            <span>
-                Stay Organised. Stay Ahead.
-            </span>
-
-        </div>
-
-    </div>
-
-</footer>
-
-<script src="backend/js/theme.js"></script>
-<script src="backend/js/auth-guard.js"></script>
-
+    <footer class="landing-footer">
+        <p><strong>Intuthuko College</strong> &mdash; Smart Reminder System</p>
+        <p>Empowering staff and tutors with organized task management.</p>
+        <p style="margin-top:8px;font-size:12px;opacity:0.7">&copy; 2026 Intuthuko College. All rights reserved.</p>
+    </footer>
 </body>
 </html>

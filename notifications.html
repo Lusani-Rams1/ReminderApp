@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Notifications | CampusSync</title>
+    <title>Reminders | CampusSync</title>
     <meta name="description" content="Your CampusSync notifications">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="CSS/notifications.css">
+    
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
@@ -14,9 +15,14 @@
         visibility: hidden;
     }
 </style>
-</head>
+<link rel="icon" href="images/logo.png" type="image/png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="CSS/reference.css">
+<link rel="stylesheet" href="CSS/portal-html.css">
+<script src="backend/js/student-session.js"></script></head>
 <body>
 
+<script src="backend/js/localData.js"></script>
 <script>
   if (localStorage.getItem('theme') === 'dark') {
     document.body.classList.add('dark');
@@ -24,42 +30,30 @@
 </script>
 
 <!-- NAVBAR -->
-<header class="top-bar">
-    <h1>CampusSync</h1>
-    <ul class="menu-bar">
-        <li><a href="dashboard.html">Home</a></li>
-        <li><a href="tasks.html">tasks</a></li>
-        <li><a href="notes.html">notes</a></li>
-        <li><a href="gpa.html">gpa calculator</a></li>
-        <li><a href="calendar.html">calendar</a></li>
-        <li><a href="settings.html">settings</a></li>
-    </ul>
-    <div class="icon-group">
-        <a href="notifications.html" class="icon-link active" title="Notifications" aria-label="Notifications">
-            <i class="fas fa-bell"></i>
-        </a>
-        <a href="profile.html" class="icon-link" title="Profile" aria-label="Profile">
-            <i class="fas fa-user"></i>
-        </a>
-    </div>
-</header>
+<nav class="navbar" aria-label="Main navigation"><div class="navbar-container">
+<a class="navbar-brand" href="dashboard.html"><h1>Smart Reminder System</h1><p class="college-name">Intuthuko College Staff Portal</p></a>
+<button class="hamburger" type="button" data-portal-menu aria-label="Toggle navigation menu" aria-controls="navbarMenu" aria-expanded="false"><span></span><span></span><span></span></button>
+<ul class="navbar-menu" id="navbarMenu"><li><a class="nav-link" href="dashboard.html">Dashboard</a></li><li><a class="nav-link" href="tasks.html">Tasks</a></li><li><a class="nav-link" href="schedule.html">Schedule</a></li><li><a class="nav-link" href="calendar.html">Calendar</a></li><li><a class="nav-link" href="notifications.html">Reminders</a></li><li class="portal-more"><details><summary class="nav-link">More</summary><div class="portal-more-menu"><a href="notes.html">Notes</a><a href="gpa.html">GPA calculator</a><a href="profile.html">Profile</a><a href="settings.html">Settings</a><a href="about.html">About</a><a href="Help_Center.html">Help centre</a></div></details></li></ul>
+<div class="navbar-user"><span class="welcome-text" id="portalWelcome">Intuthuko College</span><button class="logout-btn" type="button" data-portal-logout>Logout</button></div>
+</div></nav>
 
 <!-- MAIN -->
-<main class="notif-container">
+<main class="container portal-page reminders-page">
 
-    <div class="notif-header">
+    <div class="page-header">
         <div>
-            <h1>Notifications</h1>
+            <h1>Reminders</h1>
             <p>Stay on top of deadlines, exams and updates.</p>
         </div>
 
         <div class="notif-actions">
-            <button type="button" class="btn-outline" id="markAllBtn">Mark all as read</button>
-            <button type="button" class="btn-outline" id="clearAllBtn">Clear all</button>
+            <button type="button" class="btn btn-outline" id="markAllBtn">Mark all as read</button>
+            <button type="button" class="btn btn-outline" id="clearAllBtn">Clear all</button>
         </div>
     </div>
 
-    <div class="notif-filters">
+    <section class="section"><div class="section-header"><h3>Inbox</h3></div>
+    <div class="notif-filters" aria-label="Filter reminders">
         <button type="button" class="notif-filter-btn active" data-filter="all">All</button>
         <button type="button" class="notif-filter-btn" data-filter="unread">Unread</button>
         <button type="button" class="notif-filter-btn" data-filter="task">Tasks</button>
@@ -68,294 +62,25 @@
         <button type="button" class="notif-filter-btn" data-filter="system">System</button>
     </div>
 
-    <div class="notif-list" id="notifList"></div>
+    <div class="notif-list" id="notifList" aria-live="polite"></div>
 
     <div class="notif-empty" id="notifEmpty">
         <i class="fas fa-bell-slash"></i>
         <p>No notifications here.</p>
     </div>
 
+</section>
 </main>
 
-<footer class="page-footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-section">
-                <h4><i class="fas fa-graduation-cap"></i> CampusSync</h4>
-                <p>Your personal study companion for academic success.</p>
-            </div>
-            <div class="footer-section">
-                <h4>Quick Links</h4>
-                <ul>
-                    <li><a href="dashboard.html">Home</a></li>
-                    <li><a href="tasks.html">Tasks</a></li>
-                    <li><a href="notes.html">Notes</a></li>
-                    <li><a href="about.html">About</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Support</h4>
-                <ul>
-                    <li><a href="faq.html">FAQ</a></li>
-                    <li><a href="Help_Center.html">Help Center</a></li>
-                    <li><a href="privacy.html">Privacy Policy</a></li>
-                </ul>
-            </div>
-            <div class="footer-section">
-                <h4>Talk to us</h4>
-                <ul>
-                    <li><a href="contact.html">Contact Us</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 CampusSync. All rights reserved. | Made for students</p>
-        </div>
-    </div>
-</footer>
 
-<script>
-const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
 
-const iconByType = {
-    task: "fa-clipboard-list",
-    exam: "fa-graduation-cap",
-    note: "fa-sticky-note",
-    system: "fa-circle-info"
-};
-
-let notifications = [];
-let activeFilter = "all";
-
-async function loadNotifications() {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-        showNotificationError("Please log in to view your notifications.");
-        return;
-    }
-
-    const list = document.getElementById("notifList");
-    if (list) list.textContent = "Loading notifications...";
-
-    try {
-        const response = await fetch(
-            `${API_BASE_URL}/api/notifications`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.message || "Unable to load notifications."
-            );
-        }
-
-        notifications = (data.notifications || []).map(n => ({
-            ...n,
-            read: Boolean(n.is_read),
-            type: n.reminder_id ? "task" : "system"
-        }));
-
-        render();
-    } catch (error) {
-        console.error("Loading notifications failed:", error);
-        showNotificationError(error.message);
-    }
-}
-
-function showNotificationError(message) {
-    const list = document.getElementById("notifList");
-    const empty = document.getElementById("notifEmpty");
-
-    if (list) list.replaceChildren();
-
-    if (empty) {
-        empty.textContent = message;
-        empty.style.display = "block";
-    }
-}
-
-function formatNotificationTime(value) {
-    if (!value) return "";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) return "";
-
-    return date.toLocaleString([], {
-        dateStyle: "medium",
-        timeStyle: "short"
-    });
-}
-
-function render() {
-    const list = document.getElementById("notifList");
-    const empty = document.getElementById("notifEmpty");
-
-    if (!list || !empty) {
-        console.error("Notification list elements were not found.");
-        return;
-    }
-
-    list.replaceChildren();
-
-    const visible = notifications.filter(n => {
-        if (activeFilter === "all") return true;
-        if (activeFilter === "unread") return !n.read;
-        return n.type === activeFilter;
-    });
-
-    empty.textContent = visible.length
-        ? ""
-        : "No notifications to show.";
-
-    empty.style.display = visible.length ? "none" : "block";
-
-    visible.forEach(n => {
-        const card = document.createElement("div");
-        card.className = "notif-card" + (n.read ? "" : " unread");
-        card.dataset.id = n.notification_id;
-
-        const icon = document.createElement("div");
-        icon.className = `notif-icon type-${n.type}`;
-
-        const iconElement = document.createElement("i");
-        iconElement.className =
-            `fas ${iconByType[n.type] || "fa-bell"}`;
-        icon.appendChild(iconElement);
-
-        const body = document.createElement("div");
-        body.className = "notif-body";
-
-        const topRow = document.createElement("div");
-        topRow.className = "notif-top-row";
-
-        const title = document.createElement("div");
-        title.className = "notif-title";
-        title.textContent = n.title || "CampusSync Notification";
-
-        const time = document.createElement("div");
-        time.className = "notif-time";
-        time.textContent = formatNotificationTime(n.created_at);
-
-        topRow.append(title, time);
-
-        const message = document.createElement("div");
-        message.className = "notif-message";
-        message.textContent = n.message || "";
-
-        body.append(topRow, message);
-        card.append(icon, body);
-
-        if (!n.read) {
-            const dot = document.createElement("div");
-            dot.className = "notif-dot";
-            dot.title = "Unread";
-            card.appendChild(dot);
-        }
-
-        card.addEventListener("click", async () => {
-            if (!n.read) {
-                await markAsRead(n.notification_id);
-            }
-        });
-
-        list.appendChild(card);
-    });
-
-    // Update the bell's unread badge if the page has one.
-    const unreadCount = notifications.filter(n => !n.read).length;
-    const badge = document.getElementById("unreadCount");
-
-    if (badge) {
-        badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
-        badge.style.display = unreadCount ? "inline-flex" : "none";
-    }
-}
-
-async function markAsRead(notificationId) {
-    const token = localStorage.getItem("token");
-
-    try {
-        const response = await fetch(
-            `${API_BASE_URL}/api/notifications/${notificationId}/read`,
-            {
-                method: "PATCH",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }
-        );
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            throw new Error(
-                data.message || "Could not mark notification as read."
-            );
-        }
-
-        const notification = notifications.find(
-            n => n.notification_id === notificationId
-        );
-
-        if (notification) {
-            notification.read = true;
-        }
-
-        render();
-    } catch (error) {
-        console.error("Mark as read failed:", error);
-        alert(error.message);
-    }
-}
-
-const markAllBtn = document.getElementById("markAllBtn");
-
-if (markAllBtn) {
-    markAllBtn.addEventListener("click", async () => {
-        const unread = notifications.filter(n => !n.read);
-
-        for (const notification of unread) {
-            await markAsRead(notification.notification_id);
-        }
-    });
-}
-
-const clearAllBtn = document.getElementById("clearAllBtn");
-
-if (clearAllBtn) {
-    clearAllBtn.addEventListener("click", () => {
-        alert(
-            "Deleting notifications is not available in the backend yet. " +
-            "Your saved notifications have not been deleted."
-        );
-    });
-}
-
-document.querySelectorAll(".notif-filter-btn").forEach(button => {
-    button.addEventListener("click", () => {
-        document.querySelectorAll(".notif-filter-btn").forEach(btn => {
-            btn.classList.remove("active");
-        });
-
-        button.classList.add("active");
-        activeFilter = button.dataset.filter;
-        render();
-    });
-});
-
-loadNotifications();
-</script>
+<script src="backend/js/notifications.js"></script>
 
 <script src="backend/js/theme.js"></script>
 <script src="backend/js/auth-guard.js"></script>
+<script src="backend/js/logout.js"></script>
 
+<footer class="reference-footer"><p><strong>Intuthuko College</strong> — Smart Reminder System</p><p>Academic tasks, schedules and reminders.</p></footer>
+<script src="backend/js/portal-ui.js"></script>
 </body>
 </html>

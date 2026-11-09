@@ -1,224 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CampusSync administrator monitoring dashboard">
-  <title>Admin Dashboard | CampusSync</title>
-  <link rel="stylesheet" href="CSS/admin.css">
-  <script>
-    document.documentElement.classList.add("auth-pending");
-    if (localStorage.getItem("theme") === "dark") document.documentElement.dataset.theme = "dark";
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CampusSync administration overview.">
+    <title>Admin Overview | CampusSync</title>
+    
+    
+<link rel="icon" href="images/logo.png" type="image/png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="CSS/reference.css">
+<link rel="stylesheet" href="CSS/portal-html.css">
 </head>
-<body>
-  <div class="admin-shell">
-    <aside class="sidebar">
-      <a class="brand" href="admin.html"><span class="brand-mark">C</span><span>CampusSync</span></a>
-      <div class="side-label">ADMINISTRATION</div>
-      <nav class="side-nav" aria-label="Administrator navigation">
-        <a class="active" href="#overview">Overview</a>
-        <a href="#analytics">Analytics</a>
-        <a href="#user-activity">User activity</a>
-        <a href="#students">Student management</a>
-        <a href="#system-health">System health</a>
-      </nav>
-      <div class="sidebar-bottom">
-        <div class="admin-profile"><div class="avatar">A</div><div><strong id="adminName">Administrator</strong><small>System monitor</small></div></div>
-        <button id="logoutBtn" class="logout-btn" type="button">↪ Log out</button>
-      </div>
-    </aside>
-
-    <main class="main-content">
-      <header class="topbar">
-        <div><p class="eyebrow">CAMPUSSYNC / ADMIN</p><h1>System overview</h1><p class="muted">Monitor platform activity and service performance.</p></div>
-        <div class="top-actions"><span class="role-pill">Administrator</span><button id="refreshBtn" class="refresh-btn" type="button">↻ Refresh data</button></div>
-      </header>
-
-      <section id="overview" class="section-block">
-        <div class="section-heading"><div><h2>Platform at a glance</h2><p class="muted">Live totals from the CampusSync database.</p></div><span id="lastUpdated" class="muted small">Not yet updated</span></div>
-        <div class="stats-grid">
-          <article class="stat-card"><div class="stat-top"><span>Total students</span><span class="stat-icon violet">♙</span></div><strong id="totalStudents">—</strong><small>Registered student accounts</small></article>
-          <article class="stat-card"><div class="stat-top"><span>Tasks created</span><span class="stat-icon blue">▤</span></div><strong id="totalTasks">—</strong><small>Across the platform</small></article>
-          <article class="stat-card"><div class="stat-top"><span>Tasks completed</span><span class="stat-icon green">✓</span></div><strong id="completedTasks">—</strong><small>Marked as completed</small></article>
-          <article class="stat-card"><div class="stat-top"><span>Overdue tasks</span><span class="stat-icon orange">!</span></div><strong id="overdueTasks">—</strong><small>Past due and not completed</small></article>
-          <article class="stat-card"><div class="stat-top"><span>Reminders sent</span><span class="stat-icon green">↗</span></div><strong id="sentReminders">—</strong><small>Successfully marked as sent</small></article>
-          <article class="stat-card"><div class="stat-top"><span>Notifications</span><span class="stat-icon blue">◉</span></div><strong id="totalNotifications">—</strong><small>Created by the platform</small></article>
-        </div>
-      </section>
-
-      <section id="analytics" class="section-block">
-        <div class="section-heading"><div><h2>Usage analytics</h2><p class="muted">Monthly student registrations and task creation.</p></div></div>
-        <div class="charts-grid">
-          <article class="panel chart-panel"><div class="panel-heading"><div><h3>Student registrations</h3><p class="muted">Last six months</p></div></div><div class="chart-wrap"><canvas id="registrationsChart" aria-label="Monthly student registrations chart"></canvas></div></article>
-          <article class="panel chart-panel"><div class="panel-heading"><div><h3>Task activity</h3><p class="muted">Current task status breakdown</p></div></div><div class="chart-wrap"><canvas id="taskStatusChart" aria-label="Task status doughnut chart"></canvas></div></article>
-        </div>
-        <div class="charts-grid lower-grid">
-          <article class="panel chart-panel"><div class="panel-heading"><div><h3>Tasks created</h3><p class="muted">Last six months</p></div></div><div class="chart-wrap"><canvas id="tasksChart" aria-label="Monthly task creation chart"></canvas></div></article>
-          <article class="panel detail-panel"><div class="panel-heading"><div><h3>Reminder performance</h3><p class="muted">Current delivery status totals</p></div></div>
-            <div class="metric-row"><span>Sent</span><strong id="reminderSentDetail">—</strong></div>
-            <div class="metric-row"><span>Pending</span><strong id="reminderPendingDetail">—</strong></div>
-            <div class="metric-row"><span>Cancelled</span><strong id="reminderCancelledDetail">—</strong></div>
-            <div class="metric-row"><span>Unread notifications</span><strong id="unreadNotifications">—</strong></div>
-            <p class="note">Counts reflect the statuses stored in the database; they are not a measure of student engagement.</p>
-          </article>
-        </div>
-      </section>
-
-      
-<section id="students" class="section-block">
-    <div class="section-heading">
-        <div>
-            <h2>Student management</h2>
-            <p class="muted">
-                Search and view registered CampusSync students.
-            </p>
-        </div>
-
-        <span id="studentCount" class="muted small">
-            Loading students...
-        </span>
-    </div>
-<!-- USER ACTIVITY -->
-<section id="user-activity" class="section-block">
-
-    <div class="section-heading">
-        <div>
-            <h2>User activity</h2>
-            <p class="muted">
-                Monitor student engagement and recent platform activity.
-            </p>
-        </div>
-    </div>
-
-    <div class="stats-grid">
-
-        <article class="stat-card">
-            <div class="stat-top">
-                <span>Active students</span>
+<body><nav class="navbar" aria-label="Main navigation"><div class="navbar-container">
+<a class="navbar-brand" href="dashboard.html"><h1>Smart Reminder System</h1><p class="college-name">Intuthuko College Staff Portal</p></a>
+<button class="hamburger" type="button" data-portal-menu aria-label="Toggle navigation menu" aria-controls="navbarMenu" aria-expanded="false"><span></span><span></span><span></span></button>
+<ul class="navbar-menu" id="navbarMenu"><li><a class="nav-link" href="dashboard.html">Dashboard</a></li><li><a class="nav-link" href="tasks.html">Tasks</a></li><li><a class="nav-link" href="schedule.html">Schedule</a></li><li><a class="nav-link" href="calendar.html">Calendar</a></li><li><a class="nav-link" href="notifications.html">Reminders</a></li><li class="portal-more"><details><summary class="nav-link">More</summary><div class="portal-more-menu"><a href="notes.html">Notes</a><a href="gpa.html">GPA calculator</a><a href="profile.html">Profile</a><a href="settings.html">Settings</a><a href="about.html">About</a><a href="Help_Center.html">Help centre</a></div></details></li></ul>
+<div class="navbar-user"><span class="welcome-text" id="portalWelcome">Intuthuko College</span><button class="logout-btn" type="button" data-portal-logout data-logout>Logout</button></div>
+</div></nav>
+    <p class="role-access-message" id="roleAccessMessage" hidden role="alert"></p>
+    <main class="role-app" data-role-page="admin">
+        <header class="role-header">
+            <a class="role-brand" href="index.html">
+                <span class="role-brand-mark">C</span>
+                <span>CampusSync <small class="role-brand-subtitle">Administration</small></span>
+            </a>
+            <nav class="role-nav" aria-label="Staff portals">
+                <a href="admin.html" aria-current="page">Overview</a>
+            </nav>
+            <div class="role-identity">
+                <span id="staffName">Admin</span>
+                <span class="role-avatar" aria-hidden="true">AD</span>
             </div>
-            <strong id="activeStudents">—</strong>
-            <small>Students active in the last 30 days</small>
-        </article>
+        </header>
 
-        <article class="stat-card">
-            <div class="stat-top">
-                <span>Tasks created</span>
-            </div>
-            <strong id="activityTasksCreated">—</strong>
-            <small>Total student tasks</small>
-        </article>
-
-        <article class="stat-card">
-            <div class="stat-top">
-                <span>Reminders created</span>
-            </div>
-            <strong id="activityRemindersCreated">—</strong>
-            <small>Total student reminders</small>
-        </article>
-
-        <article class="stat-card">
-            <div class="stat-top">
-                <span>Notifications received</span>
-            </div>
-            <strong id="activityNotifications">—</strong>
-            <small>Total notifications</small>
-        </article>
-
-    </div>
-
-    <article class="panel">
-
-        <div class="panel-heading">
+        <section class="role-intro">
             <div>
-                <h3>Recent activity</h3>
-                <p class="muted">
-                    Latest recorded student actions.
-                </p>
+                <div class="role-eyebrow">Campus overview</div>
+                <h1>Administration overview</h1>
+                <p>Manage tutor access, link students with tutors, and monitor academic activity across CampusSync.</p>
             </div>
+            <span class="sample-pill">Saved in this browser</span>
+        </section>
+
+        <section class="role-stats" aria-label="Platform summary">
+            <article class="role-stat"><span class="role-stat-label">Students</span><strong id="studentCount">—</strong><small>Registered student accounts</small></article>
+            <article class="role-stat"><span class="role-stat-label">Tutors</span><strong id="tutorCount">—</strong><small id="tutorAssignmentCount">Assigned student support</small></article>
+            <article class="role-stat"><span class="role-stat-label">Tasks completed</span><strong id="completedTaskCount">—</strong><small>Across student accounts</small></article>
+            <article class="role-stat"><span class="role-stat-label">Open tasks</span><strong id="openTaskCount">—</strong><small id="totalTaskCount">Current student workload</small></article>
+        </section>
+
+        <div class="role-grid">
+            <section class="role-panel">
+                <div class="role-panel-head">
+                    <h2>Recently registered students</h2>
+                    <span class="status-pill info">Self-service registration</span>
+                </div>
+                <div class="role-table-wrap">
+                    <table class="role-table">
+                        <thead><tr><th>Student</th><th>Email</th><th>Joined</th></tr></thead>
+                        <tbody id="recentStudents"><tr><td colspan="3">Loading student accounts...</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="role-note"><strong>Local account data:</strong> these accounts exist only in this browser. Students can register here; assign a tutor when support is needed.</div>
+            </section>
+
+            <aside>
+                <section class="role-panel">
+                    <div class="role-panel-head"><h2>Add a tutor</h2></div>
+                    <form id="createTutorForm" class="role-form">
+                        <label for="tutorName">Tutor name</label>
+                        <input id="tutorName" name="fullName" autocomplete="name" required>
+                        <label for="tutorEmail">Tutor email</label>
+                        <input id="tutorEmail" name="email" type="email" autocomplete="email" required>
+                        <button class="role-button primary" type="submit">Create tutor account</button>
+                    </form>
+                    <div class="role-message" id="adminMessage" role="status" aria-live="polite"></div>
+                    <section class="temporary-credentials" id="temporaryCredentials" hidden>
+                        <strong>Temporary password (stored in this browser)</strong>
+                        <p id="credentialUser"></p>
+                        <code id="credentialPassword"></code>
+                        <button class="role-button" type="button" id="copyCredentials">Copy credentials</button>
+                    </section>
+                </section>
+                <section class="role-panel">
+                    <div class="role-panel-head"><h2>Assign student to tutor</h2></div>
+                    <form id="assignStudentForm" class="role-form">
+                        <label for="assignmentTutor">Tutor</label>
+                        <select id="assignmentTutor" required><option value="">Select a tutor</option></select>
+                        <label for="assignmentStudent">Student</label>
+                        <select id="assignmentStudent" required><option value="">Select a student</option></select>
+                        <button class="role-button primary" type="submit">Assign student</button>
+                    </form>
+                    <div class="role-message" id="assignmentMessage" role="status" aria-live="polite"></div>
+                </section>
+                <section class="role-panel">
+                    <div class="role-panel-head"><h2>Tutor accounts</h2></div>
+                    <div class="role-list" id="tutorList"><p>Loading tutor accounts...</p></div>
+                </section>
+                <section class="role-panel">
+                    <div class="role-panel-head"><h2>Student access</h2></div>
+                    <p class="role-note">Students get access as soon as they complete registration. Admins do not need to approve accounts.</p>
+                </section>
+            </aside>
         </div>
 
-        <div class="table-responsive">
-            <table class="student-table">
-
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Activity</th>
-                        <th>Details</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-
-                <tbody id="activityTableBody">
-                    <tr>
-                        <td colspan="4">
-                            Activity will appear here.
-                        </td>
-                    </tr>
-                </tbody>
-
-            </table>
-        </div>
-
-    </article>
-
-</section>
-<!-- END USER ACTIVITY -->
-
-    <article class="panel">
-        <div class="student-toolbar">
-            <input
-                type="search"
-                id="studentSearch"
-                placeholder="Search by name, student number or email..."
-                aria-label="Search students"
-            >
-
-            <button
-                id="studentSearchBtn"
-                class="refresh-btn"
-                type="button"
-            >
-                Search
-            </button>
-        </div>
-
-        <div class="table-responsive">
-            <table class="student-table">
-                <thead>
-                    <tr>
-                        <th>Student</th>
-                        <th>Student number</th>
-                        <th>Email address</th>
-                        <th>Date registered</th>
-                    </tr>
-                </thead>
-
-                <tbody id="studentsTableBody">
-                    <tr>
-                        <td colspan="4">
-                            Loading student accounts...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </article>
-</section>
-
-
-      <section id="system-health" class="section-block">
-        <div class="section-heading"><div><h2>System health</h2><p class="muted">Connection checks for the application services.</p></div></div>
-        <article class="panel health-panel"><div class="health-item"><span class="health-dot" id="apiDot"></span><div><strong>Backend API</strong><small id="apiStatus">Checking…</small></div></div><div class="health-item"><span class="health-dot" id="dbDot"></span><div><strong>MySQL database</strong><small id="dbStatus">Checking…</small></div></div><span id="healthChecked" class="muted small"></span></article>
-      </section>
-      <footer class="page-footer">CampusSync administration · Monitoring and insights</footer>
+        
     </main>
-  </div>
-
-  <div id="dashboardError" class="toast" role="alert" aria-live="polite"></div>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="backend/js/admin-guard.js"></script>
-  <script src="backend/js/admin.js"></script>
+    <script src="backend/js/localData.js"></script>
+    <script src="backend/js/roleAccess.js"></script>
+    <script src="backend/js/adminDashboard.js"></script>
+<footer class="reference-footer"><p><strong>Intuthuko College</strong> — Smart Reminder System</p><p>Academic tasks, schedules and reminders.</p></footer>
+<script src="backend/js/portal-ui.js"></script>
 </body>
 </html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CampusSync tutor workspace overview.">
+    <title>Tutor Workspace | CampusSync</title>
+    
+    
+<link rel="icon" href="images/logo.png" type="image/png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="CSS/reference.css">
+<link rel="stylesheet" href="CSS/portal-html.css">
+</head>
+<body><nav class="navbar" aria-label="Main navigation"><div class="navbar-container">
+<a class="navbar-brand" href="dashboard.html"><h1>Smart Reminder System</h1><p class="college-name">Intuthuko College Staff Portal</p></a>
+<button class="hamburger" type="button" data-portal-menu aria-label="Toggle navigation menu" aria-controls="navbarMenu" aria-expanded="false"><span></span><span></span><span></span></button>
+<ul class="navbar-menu" id="navbarMenu"><li><a class="nav-link" href="dashboard.html">Dashboard</a></li><li><a class="nav-link" href="tasks.html">Tasks</a></li><li><a class="nav-link" href="schedule.html">Schedule</a></li><li><a class="nav-link" href="calendar.html">Calendar</a></li><li><a class="nav-link" href="notifications.html">Reminders</a></li><li class="portal-more"><details><summary class="nav-link">More</summary><div class="portal-more-menu"><a href="notes.html">Notes</a><a href="gpa.html">GPA calculator</a><a href="profile.html">Profile</a><a href="settings.html">Settings</a><a href="about.html">About</a><a href="Help_Center.html">Help centre</a></div></details></li></ul>
+<div class="navbar-user"><span class="welcome-text" id="portalWelcome">Intuthuko College</span><button class="logout-btn" type="button" data-portal-logout data-logout>Logout</button></div>
+</div></nav>
+    <p class="role-access-message" id="roleAccessMessage" hidden role="alert"></p>
+    <main class="role-app" data-role-page="tutor">
+        <header class="role-header">
+            <a class="role-brand" href="index.html">
+                <span class="role-brand-mark">C</span>
+                <span>CampusSync <small class="role-brand-subtitle">Tutor workspace</small></span>
+            </a>
+            <nav class="role-nav" aria-label="Staff portals">
+                <a href="tutor.html" aria-current="page">My overview</a>
+            </nav>
+            <div class="role-identity">
+                <span id="staffName">Tutor</span>
+                <span class="role-avatar" aria-hidden="true">JT</span>
+            </div>
+        </header>
+
+        <section class="role-intro">
+            <div>
+                <div class="role-eyebrow">Tutor workspace</div>
+                <h1>Your students, at a glance</h1>
+                <p>Review only the students assigned to your tutor account and their task progress.</p>
+            </div>
+            <span class="sample-pill">Saved in this browser</span>
+        </section>
+
+        <section class="role-stats" aria-label="Tutor summary">
+            <article class="role-stat"><span class="role-stat-label">My students</span><strong id="tutorStudentCount">—</strong><small>Assigned by an administrator</small></article>
+            <article class="role-stat"><span class="role-stat-label">Student tasks</span><strong id="tutorTaskCount">—</strong><small>Across your assigned students</small></article>
+            <article class="role-stat"><span class="role-stat-label">Completed tasks</span><strong id="tutorCompletedCount">—</strong><small>By your assigned students</small></article>
+            <article class="role-stat"><span class="role-stat-label">Completion rate</span><strong id="tutorCompletionRate">—</strong><small>Student task progress</small></article>
+        </section>
+
+        <div class="role-grid">
+            <section class="role-panel">
+                <div class="role-panel-head">
+                    <h2>Assigned students</h2>
+                    <span>Only assigned students appear here</span>
+                </div>
+                <div class="role-table-wrap">
+                    <table class="role-table">
+                        <thead><tr><th>Student</th><th>Email</th><th>Tasks</th><th>Completed</th></tr></thead>
+                        <tbody id="assignedStudents"><tr><td colspan="4">Loading assigned students...</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="role-note" id="tutorTaskHint">Your assigned students’ task progress will appear here.</div>
+            </section>
+
+            <aside>
+                <section class="role-panel">
+                    <div class="role-panel-head"><h2>Upcoming student tasks</h2></div>
+                    <div class="role-list" id="recentStudentTasks"><p>Loading task progress...</p></div>
+                </section>
+                <section class="role-panel">
+                    <div class="role-panel-head"><h2>Local workspace</h2></div>
+                    <p class="role-note">Tutor accounts and assignments are stored only in this browser and are not shared across devices.</p>
+                </section>
+            </aside>
+        </div>
+
+        
+    </main>
+    <script src="backend/js/localData.js"></script>
+    <script src="backend/js/roleAccess.js"></script>
+    <script src="backend/js/tutorDashboard.js"></script>
+<footer class="reference-footer"><p><strong>Intuthuko College</strong> — Smart Reminder System</p><p>Academic tasks, schedules and reminders.</p></footer>
+<script src="backend/js/portal-ui.js"></script>
+</body>
+</html>
