@@ -94,18 +94,35 @@ router.get("/trends", async (req, res) => {
 
 // GET /api/admin/health - checks both API reachability and database connectivity.
 router.get("/health", async (req, res) => {
+    const uptimeSeconds = Math.floor(process.uptime());
+
+    const memoryUsage = process.memoryUsage();
+
+    const memoryMB = {
+        used: Number((memoryUsage.heapUsed / 1024 / 1024).toFixed(2)),
+        total: Number((memoryUsage.heapTotal / 1024 / 1024).toFixed(2)),
+        rss: Number((memoryUsage.rss / 1024 / 1024).toFixed(2))
+    };
+
     try {
         await db.execute("SELECT 1");
+
         res.json({
             api: "online",
             database: "connected",
+            uptimeSeconds,
+            memoryMB,
             checkedAt: new Date().toISOString()
         });
+
     } catch (error) {
         console.error("ADMIN HEALTH ERROR:", error);
+
         res.status(503).json({
             api: "online",
             database: "unavailable",
+            uptimeSeconds,
+            memoryMB,
             checkedAt: new Date().toISOString()
         });
     }

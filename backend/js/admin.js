@@ -1,4 +1,3 @@
-
 (() => {
   const API_BASE_URL = "https://reminderapp-production-36c1.up.railway.app";
   const charts = {};
@@ -169,43 +168,82 @@
     }]);
   }
 
-  // Check API and database health
+ // Check API, database and server health
   async function loadHealth() {
+    const setDot = (id, healthy) => {
+      const dot = document.getElementById(id);
+      if (dot) {
+        dot.className = healthy ? "health-dot ok" : "health-dot bad";
+      }
+    };
+
     try {
       const data = await getJson("/api/admin/health");
 
-      setText("apiStatus", "Online");
-      setText(
-        "dbStatus",
-        data.database === "connected" ? "Connected" : "Unavailable"
-      );
+      const apiHealthy = data.api === "online";
+      const dbHealthy = data.database === "connected";
 
-      const apiDot = document.getElementById("apiDot");
-      const dbDot = document.getElementById("dbDot");
+      setText("apiStatus", apiHealthy ? "Online" : "Unavailable");
+      setText("dbStatus", dbHealthy ? "Connected" : "Unavailable");
 
-      if (apiDot) apiDot.className = "health-dot ok";
+      setDot("apiDot", apiHealthy);
+      setDot("dbDot", dbHealthy);
 
-      if (dbDot) {
-        dbDot.className =
-          data.database === "connected" ? "health-dot ok" : "health-dot bad";
+      // Server uptime
+      if (typeof data.uptimeSeconds === "number") {
+        const seconds = Math.floor(data.uptimeSeconds);
+
+        const days = Math.floor(seconds / 86400);
+        const hours = Math.floor((seconds % 86400) / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+
+        const uptime = [
+          days ? `${days}d` : "",
+          hours ? `${hours}h` : "",
+          `${minutes}m`
+        ].filter(Boolean).join(" ");
+
+        setText("serverUptime", uptime);
+        setDot("uptimeDot", true);
+      } else {
+        setText("serverUptime", "Unavailable");
+        setDot("uptimeDot", false);
       }
 
+      // Node.js process memory
+      if (
+        data.memoryMB &&
+        typeof data.memoryMB.rss === "number"
+      ) {
+        setText(
+          "memoryUsage",
+          `${data.memoryMB.rss.toFixed(2)} MB (process memory)`
+        );
+        setDot("memoryDot", true);
+      } else {
+        setText("memoryUsage", "Unavailable");
+        setDot("memoryDot", false);
+      }
+
+      // Last health check
       setText(
         "healthChecked",
         data.checkedAt
-          ? "Checked " + new Date(data.checkedAt).toLocaleTimeString()
-          : ""
+          ? "Last checked: " +
+            new Date(data.checkedAt).toLocaleTimeString()
+          : "Last check unavailable"
       );
 
     } catch (error) {
       setText("apiStatus", "Unable to check");
       setText("dbStatus", "Unavailable");
+      setText("serverUptime", "Unavailable");
+      setText("memoryUsage", "Unavailable");
+      setText("healthChecked", "Health check failed");
 
-      const apiDot = document.getElementById("apiDot");
-      const dbDot = document.getElementById("dbDot");
-
-      if (apiDot) apiDot.className = "health-dot bad";
-      if (dbDot) dbDot.className = "health-dot bad";
+      ["apiDot", "dbDot", "uptimeDot", "memoryDot"].forEach(id => {
+        setDot(id, false);
+      });
 
       throw error;
     }
@@ -481,12 +519,12 @@
       const studentSearch = document.getElementById("studentSearch");
 
       await Promise.all([
-        loadOverview(),
-        loadTrends(),
-        loadHealth(),
-        loadStudents(studentSearch ? studentSearch.value.trim() : ""),
-        loadActivity()
-      ]);
+      loadOverview(),
+      loadTrends(),
+      loadHealth(),
+      loadStudents(studentSearch ? studentSearch.value.trim() : ""),
+      loadActivity()
+    ]);
 
       setText(
         "lastUpdated",
@@ -511,6 +549,12 @@
     const studentSearchBtn = document.getElementById("studentSearchBtn");
     const refreshBtn = document.getElementById("refreshBtn");
     const logoutBtn = document.getElementById("logoutBtn");
+        // Automatically check system health every 30 seconds
+    setInterval(() => {
+      loadHealth().catch(error => {
+        console.error("Automatic health check failed:", error);
+      });
+    }, 30000);
 
     if (studentSearchBtn && studentSearch) {
       studentSearchBtn.addEventListener("click", () => {
