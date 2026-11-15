@@ -325,7 +325,7 @@ router.get("/activity", async (req, res) => {
             message: "Unable to load student activity."
         });
     }
-});
+  });
 
 // GET /api/admin/reports/students
 // Download student registration report as CSV.
