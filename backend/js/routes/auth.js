@@ -1,5 +1,8 @@
+
 const { rateLimit } = require("express-rate-limit");
 const { requireAuth } = require("../middleware/auth");
+const { randomUUID } = require("crypto");
+
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -8,7 +11,12 @@ const db = require("../db");
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Limit repeated login attempts
+// Convert a UTC Date into a MySQL DATETIME string.
+function toSqlDateTime(date) {
+    return date.toISOString().slice(0, 19).replace("T", " ");
+}
+
+// LOGIN RATE LIMITER
 const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: 10,
@@ -19,7 +27,7 @@ const loginLimiter = rateLimit({
     }
 });
 
-// Limit automated registrations
+// REGISTRATION RATE LIMITER
 const registerLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
     limit: 5,
@@ -30,10 +38,12 @@ const registerLimiter = rateLimit({
     }
 });
 
-// REGISTER
+// =====================================================
+// REGISTER STUDENT
 // POST /api/auth/register
+// =====================================================
 router.post("/register", registerLimiter, async (req, res) => {
-        try {
+    try {
         const { fullName, studentNumber, email, password } = req.body;
 
         if (
@@ -55,9 +65,9 @@ router.post("/register", registerLimiter, async (req, res) => {
 
         const cleanFullName = fullName.trim();
         const cleanStudentNumber = studentNumber.trim();
-        const cleanEmail = email.trim();
+        const cleanEmail = email.trim().toLowerCase();
 
-        // Check whether the email is already registered.
+        // Check for an existing email.
         const [existingEmail] = await db.execute(
             "SELECT user_id FROM users WHERE email = ?",
             [cleanEmail]
@@ -69,7 +79,7 @@ router.post("/register", registerLimiter, async (req, res) => {
             });
         }
 
-        // Check whether the student number is already registered.
+        // Check for an existing student number.
         const [existingStudentNumber] = await db.execute(
             "SELECT user_id FROM users WHERE student_number = ?",
             [cleanStudentNumber]
@@ -81,24 +91,52 @@ router.post("/register", registerLimiter, async (req, res) => {
             });
         }
 
+        // Hash the password.
         const passwordHash = await bcrypt.hash(password, 10);
 
-        // New accounts receive the database default account_status: active.
+        // Create the student account.
         const [result] = await db.execute(
             `INSERT INTO users
                 (full_name, student_number, email, password_hash, role)
              VALUES (?, ?, ?, ?, 'student')`,
-            [cleanFullName, cleanStudentNumber, cleanEmail, passwordHash]
+            [
+                cleanFullName,
+                cleanStudentNumber,
+                cleanEmail,
+                passwordHash
+            ]
         );
 
+        // Create a session for the new student.
+        const sessionId = randomUUID();
+        const expiresAt = new Date(
+            Date.now() + 12 * 60 * 60 * 1000
+        );
+
+        await db.execute(
+            `INSERT INTO user_sessions
+                (session_id, user_id, expires_at)
+             VALUES (?, ?, ?)`,
+            [
+                sessionId,
+                result.insertId,
+                toSqlDateTime(expiresAt)
+            ]
+        );
+
+        // Generate a JWT with the session ID.
         const token = jwt.sign(
             {
                 userId: result.insertId,
                 email: cleanEmail,
-                role: "student"
+                role: "student",
+                sessionId
             },
             JWT_SECRET,
-            { expiresIn: "12h" }
+            {
+                algorithm: "HS256",
+                expiresIn: "12h"
+            }
         );
 
         return res.status(201).json({
@@ -128,10 +166,12 @@ router.post("/register", registerLimiter, async (req, res) => {
     }
 });
 
-// LOGIN
+// =====================================================
+// LOGIN - STUDENT AND ADMIN
 // POST /api/auth/login
+// =====================================================
 router.post("/login", loginLimiter, async (req, res) => {
-        try {
+    try {
         const { email, password } = req.body;
 
         if (
@@ -145,9 +185,16 @@ router.post("/login", loginLimiter, async (req, res) => {
 
         const cleanEmail = email.trim();
 
+        // Find the account.
         const [users] = await db.execute(
-            `SELECT user_id, full_name, student_number, email,
-                    password_hash, role, account_status
+            `SELECT
+                user_id,
+                full_name,
+                student_number,
+                email,
+                password_hash,
+                role,
+                account_status
              FROM users
              WHERE email = ?`,
             [cleanEmail]
@@ -183,7 +230,7 @@ router.post("/login", loginLimiter, async (req, res) => {
             });
         }
 
-        // Validate the account role.
+        // Validate the role.
         const role = user.role || "student";
 
         if (!["student", "admin"].includes(role)) {
@@ -192,21 +239,45 @@ router.post("/login", loginLimiter, async (req, res) => {
             });
         }
 
-        // Generate authentication token.
+        // Create a new session.
+        const sessionId = randomUUID();
+
+        // Admin: 1 hour
+        // Student: 12 hours
+        const sessionHours = role === "admin" ? 1 : 12;
+
+        const expiresAt = new Date(
+            Date.now() + sessionHours * 60 * 60 * 1000
+        );
+
+        // Save session in MySQL.
+        await db.execute(
+            `INSERT INTO user_sessions
+                (session_id, user_id, expires_at)
+             VALUES (?, ?, ?)`,
+            [
+                sessionId,
+                user.user_id,
+                toSqlDateTime(expiresAt)
+            ]
+        );
+
+        // Generate JWT with sessionId.
         const token = jwt.sign(
             {
                 userId: user.user_id,
                 email: user.email,
-                role: role
+                role,
+                sessionId
             },
-            
             JWT_SECRET,
-            { 
-                expiresIn: role === "admin" ? "1h" : "12h"   
+            {
+                algorithm: "HS256",
+                expiresIn: `${sessionHours}h`
             }
         );
 
-        return res.json({
+        return res.status(200).json({
             message: "Login successful.",
             token,
             user: {
@@ -214,7 +285,7 @@ router.post("/login", loginLimiter, async (req, res) => {
                 fullName: user.full_name,
                 studentNumber: user.student_number,
                 email: user.email,
-                role: role
+                role
             }
         });
 
@@ -227,21 +298,33 @@ router.post("/login", loginLimiter, async (req, res) => {
     }
 });
 
-// GET CURRENT USER
+// =====================================================
+// GET CURRENT AUTHENTICATED USER
 // GET /api/auth/me
+// =====================================================
 router.get("/me", requireAuth, async (req, res) => {
     try {
         const [users] = await db.execute(
-            `SELECT user_id, full_name, student_number, email, role, created_at
-             FROM users WHERE user_id = ?`,
+            `SELECT
+                user_id,
+                full_name,
+                student_number,
+                email,
+                role,
+                created_at
+             FROM users
+             WHERE user_id = ?`,
             [req.user.userId]
         );
 
         if (users.length === 0) {
-            return res.status(404).json({ message: "User not found." });
+            return res.status(404).json({
+                message: "User not found."
+            });
         }
 
         const user = users[0];
+
         return res.json({
             user: {
                 userId: user.user_id,
@@ -252,8 +335,10 @@ router.get("/me", requireAuth, async (req, res) => {
                 createdAt: user.created_at
             }
         });
+
     } catch (error) {
         console.error("GET ME ERROR:", error);
+
         return res.status(500).json({
             message: "Unable to retrieve user profile."
         });
