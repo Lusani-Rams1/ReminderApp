@@ -1,9 +1,11 @@
+
 const jwt = require("jsonwebtoken");
 const db = require("../db");
 
 async function requireAuth(req, res, next) {
     const header = req.headers.authorization;
 
+    // 1. Check Authorization header
     if (!header || !header.startsWith("Bearer ")) {
         return res.status(401).json({
             message: "Access denied. Please log in."
@@ -19,33 +21,39 @@ async function requireAuth(req, res, next) {
     }
 
     try {
+        // 2. Verify JWT configuration
         if (!process.env.JWT_SECRET) {
             throw new Error("JWT_SECRET is not configured.");
         }
 
+        // 3. Verify JWT signature and expiration
         const decoded = jwt.verify(
             token,
             process.env.JWT_SECRET,
-            { algorithms: ["HS256"] }
+            {
+                algorithms: ["HS256"]
+            }
         );
 
         if (!decoded.userId || !decoded.sessionId) {
-    return res.status(401).json({
-        message: "Invalid session. Please log in again."
-    });
-}
+            return res.status(401).json({
+                message: "Invalid session. Please log in again."
+            });
+        }
 
-        // Verify that the session exists, belongs to this user,
-        // has not expired and has not been revoked.
+        // 4. Verify server-side session
         const [sessions] = await db.execute(
             `SELECT session_id
-            FROM user_sessions
-            WHERE session_id = ?
-            AND user_id = ?
-            AND revoked_at IS NULL
-            AND expires_at > UTC_TIMESTAMP()
-            LIMIT 1`,
-            [decoded.sessionId, decoded.userId]
+             FROM user_sessions
+             WHERE session_id = ?
+               AND user_id = ?
+               AND revoked_at IS NULL
+               AND expires_at > UTC_TIMESTAMP()
+             LIMIT 1`,
+            [
+                decoded.sessionId,
+                decoded.userId
+            ]
         );
 
         if (sessions.length === 0) {
@@ -54,11 +62,17 @@ async function requireAuth(req, res, next) {
             });
         }
 
-        // Retrieve the latest account information from the database.
+        // 5. Retrieve latest account information
         const [users] = await db.execute(
-            `SELECT user_id, email, role, account_status
+            `SELECT
+                user_id,
+                email,
+                role,
+                account_status,
+                email_verified
              FROM users
-             WHERE user_id = ?`,
+             WHERE user_id = ?
+             LIMIT 1`,
             [decoded.userId]
         );
 
@@ -70,7 +84,7 @@ async function requireAuth(req, res, next) {
 
         const user = users[0];
 
-        // Block suspended student accounts, including existing sessions.
+        // 6. Block suspended student accounts
         if (
             user.role === "student" &&
             user.account_status === "suspended"
@@ -80,6 +94,18 @@ async function requireAuth(req, res, next) {
             });
         }
 
+        // 7. Block students with unverified email addresses
+        if (
+            user.role === "student" &&
+            !user.email_verified
+        ) {
+            return res.status(403).json({
+                message: "Please verify your email address before accessing CampusSync.",
+                emailVerificationRequired: true
+            });
+        }
+
+        // 8. Attach verified account information to request
         req.user = {
             userId: user.user_id,
             email: user.email,
@@ -87,16 +113,20 @@ async function requireAuth(req, res, next) {
             sessionId: decoded.sessionId
         };
 
+        // 9. Allow access to protected endpoint
         return next();
 
     } catch (error) {
+        // Missing server configuration
         if (error.message === "JWT_SECRET is not configured.") {
             console.error(error.message);
+
             return res.status(500).json({
                 message: "Server authentication is not configured."
             });
         }
 
+        // Invalid, expired or premature JWT
         if (
             error.name === "JsonWebTokenError" ||
             error.name === "TokenExpiredError" ||
@@ -107,6 +137,7 @@ async function requireAuth(req, res, next) {
             });
         }
 
+        // Unexpected database or server error
         console.error("AUTH MIDDLEWARE ERROR:", error);
 
         return res.status(500).json({
