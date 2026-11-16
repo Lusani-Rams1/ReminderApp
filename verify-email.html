@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Email | CampusSync</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f4f7fc;
+            font-family: Arial, sans-serif;
+        }
+
+        .verification-card {
+            width: min(420px, 90%);
+            padding: 35px;
+            background: white;
+            border-radius: 14px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,.08);
+        }
+
+        h1 { color: #173b85; }
+        p { color: #555; line-height: 1.6; }
+
+        .login-btn {
+            display: none;
+            padding: 12px 24px;
+            background: #173b85;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <main class="verification-card">
+        <h1>CampusSync</h1>
+        <h2>Email Verification</h2>
+        <p id="message" role="status">
+            Verifying your email address...
+        </p>
+        <a href="login.html" id="loginBtn" class="login-btn">
+            Go to Login
+        </a>
+    </main>
+    <button
+        type="button"
+        id="verifyEmailBtn"
+        class="register-btn"
+        style="display: none;">
+        Verify My Email
+    </button>
+
+    <script>
+        const API_BASE_URL =
+            "https://reminderapp-production-36c1.up.railway.app";
+
+        async function verifyEmail() {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get("token");
+            const message = document.getElementById("message");
+            const loginBtn = document.getElementById("loginBtn");
+
+            // Remove the token from the visible URL and browser history.
+            history.replaceState(null, "", window.location.pathname);
+
+            if (!token || !/^[a-f0-9]{64}$/.test(token)) {
+                message.textContent =
+                    "Invalid verification link.";
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/auth/verify-email`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ token })
+                    }
+                );
+
+                const data = await response.json();
+
+                message.textContent =
+                    data.message || "Verification failed.";
+
+                if (response.ok) {
+                    loginBtn.style.display = "inline-block";
+                }
+
+            } catch (error) {
+                message.textContent =
+                    "Unable to connect to CampusSync. Please try again later.";
+            }
+        }
+
+        verifyEmail();
+    </script>
+    <script src="backend/js/verify-email.js"></script>
+</body>
+</html>
