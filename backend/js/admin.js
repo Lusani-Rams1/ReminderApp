@@ -642,14 +642,43 @@ async function downloadReport(reportType, button) {
     if (refreshBtn) {
       refreshBtn.addEventListener("click", refreshDashboard);
     }
-
+    
     if (logoutBtn) {
-      logoutBtn.addEventListener("click", () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.location.replace("login.html");
-      });
+        logoutBtn.addEventListener("click", async () => {
+            const token = localStorage.getItem("token");
+
+            // Use the same API environment as the admin dashboard.
+            const logoutUrl = `${API_BASE_URL}/api/auth/logout`;
+
+            logoutBtn.disabled = true;
+
+            try {
+                if (token) {
+                    const response = await fetch(logoutUrl, {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `Logout failed (${response.status})`
+                        );
+                    }
+                }
+            } catch (error) {
+                console.error("Admin logout request failed:", error);
+            } finally {
+                // Clear browser authentication data.
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+
+                window.location.replace("login.html");
+            }
+        });
     }
+
   });
 
   window.addEventListener("admin-authenticated", refreshDashboard);

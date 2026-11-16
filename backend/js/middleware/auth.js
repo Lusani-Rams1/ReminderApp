@@ -29,9 +29,28 @@ async function requireAuth(req, res, next) {
             { algorithms: ["HS256"] }
         );
 
-        if (!decoded.userId) {
+        if (!decoded.userId || !decoded.sessionId) {
+    return res.status(401).json({
+        message: "Invalid session. Please log in again."
+    });
+}
+
+        // Verify that the session exists, belongs to this user,
+        // has not expired and has not been revoked.
+        const [sessions] = await db.execute(
+            `SELECT session_id
+            FROM user_sessions
+            WHERE session_id = ?
+            AND user_id = ?
+            AND revoked_at IS NULL
+            AND expires_at > UTC_TIMESTAMP()
+            LIMIT 1`,
+            [decoded.sessionId, decoded.userId]
+        );
+
+        if (sessions.length === 0) {
             return res.status(401).json({
-                message: "Invalid token payload."
+                message: "Your session has expired or been revoked. Please log in again."
             });
         }
 
@@ -64,7 +83,8 @@ async function requireAuth(req, res, next) {
         req.user = {
             userId: user.user_id,
             email: user.email,
-            role: user.role
+            role: user.role,
+            sessionId: decoded.sessionId
         };
 
         return next();

@@ -18,6 +18,12 @@ const runReminderScheduler = require("./services/reminderScheduler");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust the single reverse proxy in production.
+// Verify Railway's actual proxy topology before deployment.
+if (process.env.NODE_ENV === "production") {
+    app.set("trust proxy", 1);
+}
+
 app.use(cors());
 app.use(express.json());
 

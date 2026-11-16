@@ -1,3 +1,4 @@
+const { rateLimit } = require("express-rate-limit");
 const { requireAuth } = require("../middleware/auth");
 const express = require("express");
 const bcrypt = require("bcryptjs");
@@ -7,10 +8,32 @@ const db = require("../db");
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// Limit repeated login attempts
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+        message: "Too many login attempts. Please try again in 15 minutes."
+    }
+});
+
+// Limit automated registrations
+const registerLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    limit: 5,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+        message: "Too many registration attempts. Please try again later."
+    }
+});
+
 // REGISTER
 // POST /api/auth/register
-router.post("/register", async (req, res) => {
-    try {
+router.post("/register", registerLimiter, async (req, res) => {
+        try {
         const { fullName, studentNumber, email, password } = req.body;
 
         if (
@@ -75,7 +98,7 @@ router.post("/register", async (req, res) => {
                 role: "student"
             },
             JWT_SECRET,
-            { expiresIn: "7d" }
+            { expiresIn: "12h" }
         );
 
         return res.status(201).json({
@@ -107,8 +130,8 @@ router.post("/register", async (req, res) => {
 
 // LOGIN
 // POST /api/auth/login
-router.post("/login", async (req, res) => {
-    try {
+router.post("/login", loginLimiter, async (req, res) => {
+        try {
         const { email, password } = req.body;
 
         if (
@@ -176,8 +199,11 @@ router.post("/login", async (req, res) => {
                 email: user.email,
                 role: role
             },
+            
             JWT_SECRET,
-            { expiresIn: "7d" }
+            { 
+                expiresIn: role === "admin" ? "1h" : "12h"   
+            }
         );
 
         return res.json({
