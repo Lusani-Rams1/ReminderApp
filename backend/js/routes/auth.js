@@ -3,19 +3,20 @@ const express = require("express");
 const { rateLimit } = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const {
-    randomUUID,
-    randomBytes,
-    createHash
-} = require("crypto");
+const { randomUUID, randomBytes, createHash } = require("crypto");
 
 const db = require("../db");
 const { requireAuth } = require("../middleware/auth");
-const { sendVerificationEmail } = require("../services/emailService");
+const {
+    sendVerificationEmail,
+    sendPasswordResetEmail
+} = require("../services/emailService");
 
 const router = express.Router();
 
+// =============================
 // HELPERS
+// =============================
 
 function validatePassword(password) {
     if (typeof password !== "string") {
@@ -26,7 +27,6 @@ function validatePassword(password) {
         return "Password must contain at least 12 characters.";
     }
 
-    // bcrypt only processes the first 72 bytes.
     if (Buffer.byteLength(password, "utf8") > 72) {
         return "Password must not exceed 72 bytes.";
     }
@@ -50,75 +50,71 @@ function validatePassword(password) {
 
 function generateVerificationToken() {
     const token = randomBytes(32).toString("hex");
-
     const tokenHash = createHash("sha256")
         .update(token)
         .digest("hex");
 
-    const expiresAt = new Date(
-        Date.now() + 30 * 60 * 1000
-    );
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
-    return {
-        token,
-        tokenHash,
-        expiresAt
-    };
+    return { token, tokenHash, expiresAt };
 }
 
 function hashVerificationToken(token) {
-    return createHash("sha256")
-        .update(token)
-        .digest("hex");
+    return createHash("sha256").update(token).digest("hex");
 }
 
 function toSqlDateTime(date) {
     return date.toISOString().slice(0, 19).replace("T", " ");
 }
 
+function createLimiter(windowMs, limit, message) {
+    return rateLimit({
+        windowMs,
+        limit,
+        standardHeaders: "draft-8",
+        legacyHeaders: false,
+        message: { message }
+    });
+}
+
+// =============================
 // RATE LIMITERS
-const loginLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 10,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
-    message: {
-        message: "Too many login attempts. Please try again in 15 minutes."
-    }
-});
+// =============================
 
-const registerLimiter = rateLimit({
-    windowMs: 60 * 60 * 1000,
-    limit: 5,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
-    message: {
-        message: "Too many registration attempts. Please try again later."
-    }
-});
+const loginLimiter = createLimiter(
+    15 * 60 * 1000,
+    10,
+    "Too many login attempts. Please try again in 15 minutes."
+);
 
-const verifyLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 20,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
-    message: {
-        message: "Too many verification attempts. Please try again later."
-    }
-});
+const registerLimiter = createLimiter(
+    60 * 60 * 1000,
+    5,
+    "Too many registration attempts. Please try again later."
+);
 
-const resendLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 3,
-    standardHeaders: "draft-8",
-    legacyHeaders: false,
-    message: {
-        message: "Too many requests. Please try again in 15 minutes."
-    }
-});
+const verifyLimiter = createLimiter(
+    15 * 60 * 1000,
+    20,
+    "Too many verification attempts. Please try again later."
+);
 
+const resendLimiter = createLimiter(
+    15 * 60 * 1000,
+    3,
+    "Too many requests. Please try again in 15 minutes."
+);
+
+const passwordResetLimiter = createLimiter(
+    15 * 60 * 1000,
+    3,
+    "Too many requests. Please try again in 15 minutes."
+);
+
+// =============================
 // REGISTER
 // POST /api/auth/register
+// =============================
 
 router.post("/register", registerLimiter, async (req, res) => {
     let connection;
@@ -242,7 +238,6 @@ router.post("/register", registerLimiter, async (req, res) => {
         connection.release();
         connection = null;
 
-        // Send the verification email after committing.
         try {
             await sendVerificationEmail(
                 cleanEmail,
@@ -272,10 +267,7 @@ router.post("/register", registerLimiter, async (req, res) => {
             try {
                 await connection.rollback();
             } catch (rollbackError) {
-                console.error(
-                    "REGISTER ROLLBACK ERROR:",
-                    rollbackError
-                );
+                console.error("REGISTER ROLLBACK ERROR:", rollbackError);
             }
         }
 
@@ -292,14 +284,14 @@ router.post("/register", registerLimiter, async (req, res) => {
         });
 
     } finally {
-        if (connection) {
-            connection.release();
-        }
+        if (connection) connection.release();
     }
 });
 
+// =============================
 // VERIFY EMAIL
 // POST /api/auth/verify-email
+// =============================
 
 router.post("/verify-email", verifyLimiter, async (req, res) => {
     let connection;
@@ -333,8 +325,6 @@ router.post("/verify-email", verifyLimiter, async (req, res) => {
 
         if (tokens.length === 0) {
             await connection.rollback();
-            connection.release();
-            connection = null;
 
             return res.status(400).json({
                 message: "This verification link is invalid, expired or already used."
@@ -373,10 +363,7 @@ router.post("/verify-email", verifyLimiter, async (req, res) => {
             try {
                 await connection.rollback();
             } catch (rollbackError) {
-                console.error(
-                    "VERIFICATION ROLLBACK ERROR:",
-                    rollbackError
-                );
+                console.error("VERIFICATION ROLLBACK ERROR:", rollbackError);
             }
         }
 
@@ -387,14 +374,15 @@ router.post("/verify-email", verifyLimiter, async (req, res) => {
         });
 
     } finally {
-        if (connection) {
-            connection.release();
-        }
+        if (connection) connection.release();
     }
 });
 
+// =============================
 // LOGIN
 // POST /api/auth/login
+// =============================
+
 router.post("/login", loginLimiter, async (req, res) => {
     try {
         const { email, password } = req.body || {};
@@ -532,120 +520,122 @@ router.post("/login", loginLimiter, async (req, res) => {
     }
 });
 
+// =============================
+// RESEND VERIFICATION EMAIL
+// POST /api/auth/resend-verification
+// =============================
 
- // RESEND VERIFICATION EMAIL
- // POST /api/auth/resend-verification
- router.post("/resend-verification", resendLimiter, async (req, res) => {
-     const genericMessage =
-         "If this email belongs to an unverified account, a new verification link will be sent.";
+router.post("/resend-verification", resendLimiter, async (req, res) => {
+    const genericMessage =
+        "If this email belongs to an unverified account, a new verification link will be sent.";
 
-     let connection;
+    let connection;
 
-     try {
-         const { email } = req.body || {};
+    try {
+        const { email } = req.body || {};
 
-         if (
-             typeof email !== "string" ||
-             !email.trim() ||
-             email.length > 150
-         ) {
-             return res.status(400).json({
-                 message: "Please enter a valid email address."
-             });
-         }
+        if (
+            typeof email !== "string" ||
+            !email.trim() ||
+            email.length > 150
+        ) {
+            return res.status(400).json({
+                message: "Please enter a valid email address."
+            });
+        }
 
-         const cleanEmail = email.trim().toLowerCase();
+        const cleanEmail = email.trim().toLowerCase();
 
-         const [users] = await db.execute(
-             `SELECT user_id, full_name, email_verified, role
-              FROM users
-              WHERE email = ?
-              LIMIT 1`,
-             [cleanEmail]
-         );
+        const [users] = await db.execute(
+            `SELECT user_id, full_name, email_verified, role
+             FROM users
+             WHERE email = ?
+             LIMIT 1`,
+            [cleanEmail]
+        );
 
-         if (
-             users.length === 0 ||
-             users[0].role !== "student" ||
-             users[0].email_verified
-         ) {
-             return res.json({ message: genericMessage });
-         }
+        if (
+            users.length === 0 ||
+            users[0].role !== "student" ||
+            users[0].email_verified
+        ) {
+            return res.json({ message: genericMessage });
+        }
 
-         const user = users[0];
+        const user = users[0];
 
-         const {
-             token,
-             tokenHash,
-             expiresAt
-         } = generateVerificationToken();
+        const {
+            token,
+            tokenHash,
+            expiresAt
+        } = generateVerificationToken();
 
-         connection = await db.getConnection();
-         await connection.beginTransaction();
+        connection = await db.getConnection();
+        await connection.beginTransaction();
 
-         await connection.execute(
-             `DELETE FROM email_verification_tokens
-              WHERE user_id = ?`,
-             [user.user_id]
-         );
+        await connection.execute(
+            `DELETE FROM email_verification_tokens
+             WHERE user_id = ?`,
+            [user.user_id]
+        );
 
-         await connection.execute(
-             `INSERT INTO email_verification_tokens
-                 (user_id, token_hash, expires_at)
-              VALUES (?, ?, ?)`,
-             [
-                 user.user_id,
-                 tokenHash,
-                 toSqlDateTime(expiresAt)
-             ]
-         );
+        await connection.execute(
+            `INSERT INTO email_verification_tokens
+                (user_id, token_hash, expires_at)
+             VALUES (?, ?, ?)`,
+            [
+                user.user_id,
+                tokenHash,
+                toSqlDateTime(expiresAt)
+            ]
+        );
 
-         await connection.commit();
-         connection.release();
-         connection = null;
+        await connection.commit();
+        connection.release();
+        connection = null;
 
-         try {
-             await sendVerificationEmail(
-                 cleanEmail,
-                 user.full_name,
-                 token
-             );
-         } catch (emailError) {
-             console.error(
-                 "RESEND VERIFICATION EMAIL ERROR:",
-                 emailError.message
-             );
-         }
+        try {
+            await sendVerificationEmail(
+                cleanEmail,
+                user.full_name,
+                token
+            );
+        } catch (emailError) {
+            console.error(
+                "RESEND VERIFICATION EMAIL ERROR:",
+                emailError.message
+            );
+        }
 
-         return res.json({ message: genericMessage });
+        return res.json({ message: genericMessage });
 
-     } catch (error) {
-         if (connection) {
-             try {
-                 await connection.rollback();
-             } catch (rollbackError) {
-                 console.error(
-                     "RESEND VERIFICATION ROLLBACK ERROR:",
-                     rollbackError
-                 );
-             }
-         }
+    } catch (error) {
+        if (connection) {
+            try {
+                await connection.rollback();
+            } catch (rollbackError) {
+                console.error(
+                    "RESEND VERIFICATION ROLLBACK ERROR:",
+                    rollbackError
+                );
+            }
+        }
 
-         console.error("RESEND VERIFICATION ERROR:", error);
+        console.error("RESEND VERIFICATION ERROR:", error);
 
-         return res.status(500).json({
-             message: "Unable to process your request right now."
-         });
+        return res.status(500).json({
+            message: "Unable to process your request right now."
+        });
 
-     } finally {
-         if (connection) {
-             connection.release();
-         }
-     }
- });
+    } finally {
+        if (connection) connection.release();
+    }
+});
 
+// =============================
 // GET CURRENT USER
 // GET /api/auth/me
+// =============================
 
 router.get("/me", requireAuth, async (req, res) => {
     try {
@@ -692,8 +682,10 @@ router.get("/me", requireAuth, async (req, res) => {
     }
 });
 
+// =============================
 // LOGOUT
 // POST /api/auth/logout
+// =============================
 
 router.post("/logout", requireAuth, async (req, res) => {
     try {
@@ -725,6 +717,304 @@ router.post("/logout", requireAuth, async (req, res) => {
         return res.status(500).json({
             message: "Unable to log out. Please try again."
         });
+    }
+});
+
+// =============================
+// FORGOT PASSWORD
+// POST /api/auth/forgot-password
+// =============================
+
+const PASSWORD_RESET_MESSAGE =
+    "If an eligible account exists for this email, a password reset link will be sent.";
+
+router.post("/forgot-password", passwordResetLimiter, async (req, res) => {
+    let connection;
+
+    try {
+        const { email } = req.body || {};
+
+        if (
+            typeof email !== "string" ||
+            email.length > 150 ||
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+        ) {
+            return res.status(400).json({
+                message: "Please enter a valid email address."
+            });
+        }
+
+        const cleanEmail = email.trim().toLowerCase();
+
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        // Lock account first to serialize reset requests.
+        const [users] = await connection.execute(
+            `SELECT
+                user_id,
+                full_name,
+                email,
+                role,
+                email_verified,
+                account_status
+             FROM users
+             WHERE email = ?
+             LIMIT 1
+             FOR UPDATE`,
+            [cleanEmail]
+        );
+
+        if (
+            users.length !== 1 ||
+            users[0].role !== "student" ||
+            !users[0].email_verified ||
+            users[0].account_status !== "active"
+        ) {
+            await connection.rollback();
+
+            return res.json({
+                message: PASSWORD_RESET_MESSAGE
+            });
+        }
+
+        const user = users[0];
+
+        // Five-minute cooldown per account.
+        const [recent] = await connection.execute(
+            `SELECT token_id
+             FROM password_reset_tokens
+             WHERE user_id = ?
+               AND created_at > UTC_TIMESTAMP() - INTERVAL 5 MINUTE
+             LIMIT 1`,
+            [user.user_id]
+        );
+
+        if (recent.length > 0) {
+            await connection.rollback();
+
+            return res.json({
+                message: PASSWORD_RESET_MESSAGE
+            });
+        }
+
+        const token = randomBytes(32).toString("hex");
+
+        const tokenHash = createHash("sha256")
+            .update(token)
+            .digest("hex");
+
+        const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+
+        // Invalidate previous reset tokens.
+        await connection.execute(
+            `UPDATE password_reset_tokens
+             SET used_at = UTC_TIMESTAMP()
+             WHERE user_id = ?
+               AND used_at IS NULL`,
+            [user.user_id]
+        );
+
+        await connection.execute(
+            `INSERT INTO password_reset_tokens
+                (user_id, token_hash, expires_at)
+             VALUES (?, ?, ?)`,
+            [
+                user.user_id,
+                tokenHash,
+                toSqlDateTime(expiresAt)
+            ]
+        );
+
+        await connection.commit();
+        connection.release();
+        connection = null;
+
+        try {
+            await sendPasswordResetEmail(
+                user.email,
+                user.full_name,
+                token
+            );
+        } catch (emailError) {
+            console.error(
+                "PASSWORD RESET EMAIL ERROR:",
+                emailError.message
+            );
+        }
+
+        return res.json({
+            message: PASSWORD_RESET_MESSAGE
+        });
+
+    } catch (error) {
+        if (connection) {
+            try {
+                await connection.rollback();
+            } catch (rollbackError) {
+                console.error(
+                    "FORGOT PASSWORD ROLLBACK ERROR:",
+                    rollbackError
+                );
+            }
+        }
+
+        console.error("FORGOT PASSWORD ERROR:", error);
+
+        return res.status(500).json({
+            message: "Unable to process your request right now."
+        });
+
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// =============================
+// RESET PASSWORD
+// POST /api/auth/reset-password
+// =============================
+
+router.post("/reset-password", passwordResetLimiter, async (req, res) => {
+    let connection;
+
+    try {
+        const { token, password } = req.body || {};
+
+        if (
+            typeof token !== "string" ||
+            !/^[a-f0-9]{64}$/.test(token)
+        ) {
+            return res.status(400).json({
+                message: "Invalid password reset link."
+            });
+        }
+
+        const passwordError = validatePassword(password);
+
+        if (passwordError) {
+            return res.status(400).json({
+                message: passwordError
+            });
+        }
+
+        const tokenHash = createHash("sha256")
+            .update(token)
+            .digest("hex");
+
+        const newPasswordHash = await bcrypt.hash(password, 10);
+
+        connection = await db.getConnection();
+        await connection.beginTransaction();
+
+        // Identify account without locking token rows first.
+        const [candidate] = await connection.execute(
+            `SELECT user_id
+             FROM password_reset_tokens
+             WHERE token_hash = ?
+             LIMIT 1`,
+            [tokenHash]
+        );
+
+        if (candidate.length === 0) {
+            await connection.rollback();
+
+            return res.status(400).json({
+                message: "This reset link is invalid, expired or already used."
+            });
+        }
+
+        // Lock account before reset token.
+        const [accounts] = await connection.execute(
+            `SELECT user_id
+             FROM users
+             WHERE user_id = ?
+               AND role = 'student'
+               AND email_verified = 1
+               AND account_status = 'active'
+             FOR UPDATE`,
+            [candidate[0].user_id]
+        );
+
+        if (accounts.length === 0) {
+            await connection.rollback();
+
+            return res.status(400).json({
+                message: "This reset link is invalid, expired or already used."
+            });
+        }
+
+        // Token must still be valid after acquiring the account lock.
+        const [tokens] = await connection.execute(
+            `SELECT token_id
+             FROM password_reset_tokens
+             WHERE token_hash = ?
+               AND user_id = ?
+               AND used_at IS NULL
+               AND expires_at > UTC_TIMESTAMP()
+             FOR UPDATE`,
+            [tokenHash, candidate[0].user_id]
+        );
+
+        if (tokens.length === 0) {
+            await connection.rollback();
+
+            return res.status(400).json({
+                message: "This reset link is invalid, expired or already used."
+            });
+        }
+
+        await connection.execute(
+            `UPDATE users
+             SET password_hash = ?
+             WHERE user_id = ?`,
+            [newPasswordHash, candidate[0].user_id]
+        );
+
+        // Invalidate all outstanding reset links.
+        await connection.execute(
+            `UPDATE password_reset_tokens
+             SET used_at = UTC_TIMESTAMP()
+             WHERE user_id = ?
+               AND used_at IS NULL`,
+            [candidate[0].user_id]
+        );
+
+        // Revoke every existing login session.
+        await connection.execute(
+            `UPDATE user_sessions
+             SET revoked_at = UTC_TIMESTAMP()
+             WHERE user_id = ?
+               AND revoked_at IS NULL`,
+            [candidate[0].user_id]
+        );
+
+        await connection.commit();
+
+        return res.status(200).json({
+            message: "Password reset successfully. Please log in again."
+        });
+
+    } catch (error) {
+        if (connection) {
+            try {
+                await connection.rollback();
+            } catch (rollbackError) {
+                console.error(
+                    "RESET PASSWORD ROLLBACK ERROR:",
+                    rollbackError
+                );
+            }
+        }
+
+        console.error("RESET PASSWORD ERROR:", error);
+
+        return res.status(500).json({
+            message: "Unable to reset password. Please try again."
+        });
+
+    } finally {
+        if (connection) connection.release();
     }
 });
 
